@@ -6,7 +6,7 @@ README (developer quickstart)
     pip install fastapi uvicorn pydantic
 
 - Run (port 8000):
-    uvicorn Experian.app.main:app --reload --port 8000
+    uvicorn Experian_API.app.main:app --reload --port 8000
 
 - Health:
     curl -s http://localhost:8000/
