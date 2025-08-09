@@ -1,0 +1,16 @@
+{
+  "consumerPii": {
+    "primaryApplicant": {
+      "name": { "firstName": "JON", "lastName": "CONSUMER" },
+      "dob": { "dob": "1991-01-01" },
+      "ssn": { "ssn": "123-45-6789" },
+      "currentAddress": {
+        "line1": "1475 MAIN ST",
+        "city": "ANYTOWN",
+        "state": "WA",
+        "zipCode": "12345",
+        "country": "US"
+      }
+    }
+  }
+}
