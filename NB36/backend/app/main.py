@@ -121,6 +121,12 @@ def apply_kyc(intake: ApplicationIntake):
     aml_decision = result.get("aml_decision")
     fraud_decision = result.get("fraud_decision")
     provisional_tier = result.get("provisional_tier")
+
+    # New credit stage outputs (present only if fraud passed)
+    credit_decision = result.get("credit_decision")
+    bureau_tier = result.get("bureau_tier")
+    final_tier = result.get("final_tier")
+
     status = result.get("status") or ("AML_DECLINE" if (aml_decision and aml_decision.get("decision") == "DECLINE") else None)
 
     B1.update_case(
@@ -131,9 +137,15 @@ def apply_kyc(intake: ApplicationIntake):
         fraud_raw=result.get("fraud_raw"),
         fraud_decision=fraud_decision,
         provisional_tier=provisional_tier,
+        credit_raw=result.get("credit_raw"),
+        credit_decision=credit_decision,
+        bureau_tier=bureau_tier,
+        final_tier=final_tier,
     )
     if fraud_decision is not None:
         B1.append_timeline(case["case_id"], "fraud.screened", {"decision": fraud_decision})
+    if credit_decision is not None:
+        B1.append_timeline(case["case_id"], "credit.screened", {"decision": credit_decision})
     B1.append_timeline(case["case_id"], "kyc.completed", {"status": status})
 
     return {
@@ -142,7 +154,10 @@ def apply_kyc(intake: ApplicationIntake):
         "aml_decision": aml_decision,
         "fraud_decision": fraud_decision,
         "provisional_tier": provisional_tier,
-        "message": "KYC (AML+Fraud) completed for demo",
+        "credit_decision": credit_decision,
+        "bureau_tier": bureau_tier,
+        "final_tier": final_tier,
+        "message": "End-to-end KYC (AML + Fraud + Credit) completed for demo",
     }
 
 

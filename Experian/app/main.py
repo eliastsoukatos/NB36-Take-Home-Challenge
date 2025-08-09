@@ -372,6 +372,38 @@ async def credit_report(
     # Success body
     body = make_success_body(req)
 
+    # Scenario shaping to support demo outcomes
+    scenario = (req.addOns or {}).get("scenario") if isinstance(req.addOns, dict) else None
+    try:
+        cp_list = body.get("creditProfile") or []
+        cp = cp_list[0] if cp_list else {}
+        if scenario == "pass":
+            # Clear severe fraud/OFAC flags and ensure a high score
+            if "fraudShield" in cp and cp["fraudShield"]:
+                fs0 = cp["fraudShield"][0] or {}
+                if "fraudShieldIndicators" in fs0 and isinstance(fs0["fraudShieldIndicators"], dict):
+                    fs0["fraudShieldIndicators"]["indicator"] = []
+                fs0.pop("dateOfDeath", None)
+            cp["statement"] = []
+            if "ofac" in cp and isinstance(cp["ofac"], dict):
+                cp["ofac"]["messageText"] = ""
+            if "riskModel" in cp and cp["riskModel"]:
+                cp["riskModel"][0]["score"] = "790"
+        elif scenario == "review_credit":
+            # Remove risk model and mark a tradeline as disputed to trigger REVIEW
+            cp["riskModel"] = []
+            if "tradeline" in cp and cp["tradeline"]:
+                tl0 = cp["tradeline"][0] or {}
+                tl0["consumerDisputeFlag"] = "Y"
+        elif scenario == "ko_credit":
+            # Force OFAC match to trigger DECLINE
+            if "ofac" not in cp or not isinstance(cp["ofac"], dict):
+                cp["ofac"] = {}
+            cp["ofac"]["messageText"] = "MATCH FOUND"
+    except Exception:
+        # If shaping fails, return the default success body
+        pass
+
     # Set response headers
     resp.headers["experianTransactionId"] = str(uuid.uuid4())
     resp.headers["clientReferenceId"] = hdrs.get("clientReferenceId", "SBMYSQL")

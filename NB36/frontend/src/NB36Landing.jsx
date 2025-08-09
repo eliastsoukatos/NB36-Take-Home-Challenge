@@ -743,10 +743,12 @@ function ApplyForm() {
           value={scenario}
           onChange={(e) => setScenario(e.target.value)}
         >
-          <option value="pass">pass (PROCEED)</option>
-          <option value="review">review (context)</option>
+          <option value="pass">pass (End-to-end PASS)</option>
+          <option value="review">review (Fraud REVIEW)</option>
           <option value="ko_compliance">ko_compliance (AML DECLINE)</option>
           <option value="ko_fraud">ko_fraud (Fraud DECLINE/REVIEW)</option>
+          <option value="review_credit">review_credit (CREDIT REVIEW)</option>
+          <option value="ko_credit">ko_credit (CREDIT DECLINE)</option>
         </select>
       </div>
 
@@ -796,7 +798,7 @@ function ApplyForm() {
           </div>
           {typeof result.provisional_tier === "number" && (
             <div className="mt-1 text-sm text-slate-700">
-              Provisional tier: <span className="font-mono">{result.provisional_tier}</span>
+              Fraud provisional tier: <span className="font-mono">{result.provisional_tier}</span>
             </div>
           )}
           {Array.isArray(result.fraud_decision?.reasons) && result.fraud_decision.reasons.length > 0 && (
@@ -804,6 +806,41 @@ function ApplyForm() {
               Reasons:
               <ul className="mt-1 list-disc pl-5">
                 {result.fraud_decision.reasons.map((r) => (
+                  <li key={r} className="font-mono">{r}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="mt-3 text-sm font-semibold text-emerald-800">Credit</div>
+          <div className="mt-1 text-sm text-slate-700">
+            Decision: <span className="font-mono">{result.credit_decision?.decision ?? "—"}</span>
+          </div>
+          {typeof (result.bureau_tier ?? result.credit_decision?.bureau_tier) === "number" && (
+            <div className="mt-1 text-sm text-slate-700">
+              Bureau tier: <span className="font-mono">{(result.bureau_tier ?? result.credit_decision?.bureau_tier)}</span>
+            </div>
+          )}
+          {typeof (result.final_tier ?? result.credit_decision?.final_tier) === "number" && (
+            <div className="mt-1 text-sm text-slate-700">
+              Final tier: <span className="font-mono">{(result.final_tier ?? result.credit_decision?.final_tier)}</span>
+            </div>
+          )}
+          {Array.isArray(result.credit_decision?.ko_reasons) && result.credit_decision.ko_reasons.length > 0 && (
+            <div className="mt-1 text-sm text-slate-700">
+              KO reasons:
+              <ul className="mt-1 list-disc pl-5">
+                {result.credit_decision.ko_reasons.map((r) => (
+                  <li key={r} className="font-mono">{r}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {Array.isArray(result.credit_decision?.review_reasons) && result.credit_decision.review_reasons.length > 0 && (
+            <div className="mt-1 text-sm text-slate-700">
+              Review reasons:
+              <ul className="mt-1 list-disc pl-5">
+                {result.credit_decision.review_reasons.map((r) => (
                   <li key={r} className="font-mono">{r}</li>
                 ))}
               </ul>
