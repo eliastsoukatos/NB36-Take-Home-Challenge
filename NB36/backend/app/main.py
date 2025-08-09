@@ -40,6 +40,8 @@ class ApplicationIntake(BaseModel):
     address_zip: str
     email: str
     phone_number: str
+    ip: Optional[str] = None
+    session: Optional[str] = None
     custom_fields: Optional[Dict[str, Any]] = Field(default_factory=dict)
 
 
@@ -88,6 +90,59 @@ def apply_aml_first(intake: ApplicationIntake):
         "status": f"AML_{aml_decision['decision']}",
         "aml_decision": aml_decision,
         "message": "AML stage completed via Taktile.",
+    }
+
+
+@app.post("/apply/kyc")
+def apply_kyc(intake: ApplicationIntake):
+    # B1: Create case
+    case = B1.create_case(intake.dict())
+    # Delegate full KYC (AML + Fraud) to Taktile (T*)
+    try:
+        result = taktile.kyc_full(case_id=case["case_id"], intake=case["intake"])
+    except Exception as e:
+        # Technical failure contacting Taktile — treat as review for this stage
+        B1.update_case(case["case_id"], status="FRAUD_REVIEW")
+        B1.append_timeline(case["case_id"], "taktile.error", {"error": str(e)})
+        return {
+            "case_id": case["case_id"],
+            "status": "FRAUD_REVIEW",
+            "aml_decision": None,
+            "fraud_decision": {
+                "decision": "FRAUD_REVIEW",
+                "reasons": ["taktile_unavailable_or_error"],
+                "details": {"exception": str(e)},
+            },
+            "provisional_tier": None,
+            "message": "KYC stage failed due to technical error contacting Taktile.",
+        }
+
+    # Persist outcome on case
+    aml_decision = result.get("aml_decision")
+    fraud_decision = result.get("fraud_decision")
+    provisional_tier = result.get("provisional_tier")
+    status = result.get("status") or ("AML_DECLINE" if (aml_decision and aml_decision.get("decision") == "DECLINE") else None)
+
+    B1.update_case(
+        case["case_id"],
+        status=status,
+        aml_raw=result.get("aml_raw"),
+        aml_decision=aml_decision,
+        fraud_raw=result.get("fraud_raw"),
+        fraud_decision=fraud_decision,
+        provisional_tier=provisional_tier,
+    )
+    if fraud_decision is not None:
+        B1.append_timeline(case["case_id"], "fraud.screened", {"decision": fraud_decision})
+    B1.append_timeline(case["case_id"], "kyc.completed", {"status": status})
+
+    return {
+        "case_id": case["case_id"],
+        "status": status,
+        "aml_decision": aml_decision,
+        "fraud_decision": fraud_decision,
+        "provisional_tier": provisional_tier,
+        "message": "KYC (AML+Fraud) completed for demo",
     }
 
 

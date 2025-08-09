@@ -508,7 +508,7 @@ function ApplyForm() {
     setResult(null);
     try {
       const payload = buildPayload();
-      const resp = await fetch("http://localhost:9000/apply/aml-first", {
+      const resp = await fetch("http://localhost:9000/apply/kyc", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -745,7 +745,8 @@ function ApplyForm() {
         >
           <option value="pass">pass (PROCEED)</option>
           <option value="review">review (context)</option>
-          <option value="ko_compliance">ko_compliance (DECLINE)</option>
+          <option value="ko_compliance">ko_compliance (AML DECLINE)</option>
+          <option value="ko_fraud">ko_fraud (Fraud DECLINE/REVIEW)</option>
         </select>
       </div>
 
@@ -769,10 +770,12 @@ function ApplyForm() {
       {/* Result */}
       {result && (
         <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-          <div className="text-sm font-semibold text-emerald-800">AML result</div>
+          <div className="text-sm font-semibold text-emerald-800">KYC result</div>
           <div className="mt-1 text-sm text-slate-700">
-            Status: <span className="font-mono">{result.status}</span>
+            Overall status: <span className="font-mono">{result.status}</span>
           </div>
+
+          <div className="mt-3 text-sm font-semibold text-emerald-800">AML</div>
           <div className="mt-1 text-sm text-slate-700">
             Decision: <span className="font-mono">{result.aml_decision?.decision}</span>
           </div>
@@ -786,6 +789,27 @@ function ApplyForm() {
               </ul>
             </div>
           )}
+
+          <div className="mt-3 text-sm font-semibold text-emerald-800">Fraud</div>
+          <div className="mt-1 text-sm text-slate-700">
+            Decision: <span className="font-mono">{result.fraud_decision?.decision ?? "—"}</span>
+          </div>
+          {typeof result.provisional_tier === "number" && (
+            <div className="mt-1 text-sm text-slate-700">
+              Provisional tier: <span className="font-mono">{result.provisional_tier}</span>
+            </div>
+          )}
+          {Array.isArray(result.fraud_decision?.reasons) && result.fraud_decision.reasons.length > 0 && (
+            <div className="mt-1 text-sm text-slate-700">
+              Reasons:
+              <ul className="mt-1 list-disc pl-5">
+                {result.fraud_decision.reasons.map((r) => (
+                  <li key={r} className="font-mono">{r}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <div className="mt-2 text-xs text-slate-500">
             Case ID: <span className="font-mono">{result.case_id}</span>
           </div>
