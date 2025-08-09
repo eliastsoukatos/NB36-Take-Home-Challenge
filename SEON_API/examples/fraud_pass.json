@@ -1,0 +1,13 @@
+{
+  "email": "alice@good.com",
+  "phone_number": "+14155550123",
+  "ip": "1.2.3.4",
+  "user_fullname": "Alice Smith",
+  "user_dob": "1995-01-01",
+  "user_country": "US",
+  "session": "mock-session",
+  "custom_fields": {
+    "scenario": "pass",
+    "emit_webhooks": true
+  }
+}

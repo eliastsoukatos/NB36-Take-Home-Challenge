@@ -1,0 +1,26 @@
+# Production-like image for SEON Mock Service
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# System deps (optional minimal)
+RUN apt-get update -y && apt-get install -y --no-install-recommends \
+    build-essential curl && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY app /app/app
+
+EXPOSE 8080
+
+# Default envs (override at runtime)
+ENV API_KEY=secret \
+    SECRET_KEY=devsecret \
+    WEBHOOK_URL=
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]

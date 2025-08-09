@@ -1,0 +1,9 @@
+{
+  "email": "bob@maybe.com",
+  "phone_number": "+14155550124",
+  "ip": "5.6.7.8",
+  "user_fullname": "Bob Jones",
+  "user_dob": "1990-05-05",
+  "user_country": "US",
+  "session": "mock-session"
+}

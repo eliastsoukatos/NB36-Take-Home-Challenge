@@ -1,0 +1,7 @@
+{
+  "data_field": "email",
+  "value": "blocked@fraud.com",
+  "state": "blacklist",
+  "comment": "demo",
+  "expire_day": 7
+}
