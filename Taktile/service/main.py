@@ -6,12 +6,15 @@ from Taktile.stages.T1 import run_aml_first, run_fraud
 from Taktile.stages.T2 import evaluate_aml
 from Taktile.stages.T4 import evaluate_fraud
 from Taktile.clients.experian import ExperianClient
-from Taktile.stages.T5_credit import evaluate_credit_policy
+from Taktile.clients.plaid import PlaidClient
+from Taktile.stages.T5 import evaluate_credit_policy
+from Taktile.stages.T6 import evaluate_income
 
 
 app = FastAPI(title="Taktile Orchestrator (T*)", version="1.0.0")
 
 experian = ExperianClient()
+plaid = PlaidClient()
 
 
 class AmlFirstIn(BaseModel):
@@ -157,15 +160,73 @@ def kyc_full(input: FullKycIn):
         "scorecard": credit_eval.get("scorecard", {}),
     }
 
+    # If credit did not PASS, return here
+    if credit_status != "CREDIT_PASS":
+        return {
+            "case_id": input.case_id,
+            "status": credit_status,  # CREDIT_DECLINE | CREDIT_REVIEW
+            "aml_decision": aml_decision,
+            "fraud_decision": fraud_decision,
+            "credit_decision": credit_decision,
+            "provisional_tier": provisional_tier,  # from fraud
+            "bureau_tier": credit_eval.get("bureau_tier"),
+            "final_tier": credit_eval.get("final_tier"),
+            "aml_raw": aml_raw,
+            "fraud_raw": fraud_raw,
+            "credit_raw": credit_raw,
+        }
+
+    # Income stage (Plaid mock) — run only after CREDIT_PASS
+    try:
+        # Map frontend custom_fields to Plaid options
+        cf = (input.intake.get("custom_fields") or {})
+        income_force_mode = cf.get("income_force_mode")
+        income_risk_profile = cf.get("income_risk_profile")
+        income_inject_error = cf.get("income_inject_error")
+        coverage_months = int(cf.get("income_coverage_months") or 12)
+
+        options = {}
+        if income_force_mode:
+            options["force_mode"] = income_force_mode
+        if income_risk_profile:
+            options["risk_profile"] = income_risk_profile
+        if income_inject_error:
+            options["inject_error"] = income_inject_error
+        options["coverage_months"] = coverage_months
+
+        # Use client_user_id if present; else derive a stable key from case_id
+        client_user_id = str(input.intake.get("client_user_id") or input.case_id)
+
+        payroll_resp = plaid.payroll_income_get(client_user_id, options=options)
+        risk_resp = plaid.payroll_risk_signals_get(client_user_id, options=options)
+
+        bank_resp = None
+        # Fallback to bank if payroll missing or empty
+        if not (isinstance(payroll_resp, dict) and payroll_resp.get("payroll_income")):
+            bank_resp = plaid.bank_income_get(client_user_id, options=options)
+
+        income_eval = evaluate_income(
+            payroll_resp=payroll_resp,
+            bank_resp=bank_resp,
+            risk_resp=risk_resp,
+            coverage_months=coverage_months,
+            credit_final_tier=credit_decision.get("final_tier"),
+        )
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Income orchestration error: {e}")
+
+    income_status = income_eval.get("decision") or "INCOME_REVIEW"
+
     return {
         "case_id": input.case_id,
-        "status": credit_status,  # CREDIT_DECLINE | CREDIT_REVIEW | CREDIT_PASS
+        "status": income_status,  # INCOME_DECLINE | INCOME_REVIEW | INCOME_PASS
         "aml_decision": aml_decision,
         "fraud_decision": fraud_decision,
         "credit_decision": credit_decision,
+        "income_decision": income_eval,
         "provisional_tier": provisional_tier,  # from fraud
         "bureau_tier": credit_eval.get("bureau_tier"),
-        "final_tier": credit_eval.get("final_tier"),
+        "final_tier": income_eval.get("final_tier"),
         "aml_raw": aml_raw,
         "fraud_raw": fraud_raw,
         "credit_raw": credit_raw,

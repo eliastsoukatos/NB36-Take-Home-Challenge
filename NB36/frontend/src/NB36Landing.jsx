@@ -477,6 +477,10 @@ function ApplyForm() {
   const [zip, setZip] = React.useState("");
   const [scenario, setScenario] = React.useState("pass"); // for testing: pass | review | ko_compliance
 
+  // Income testing state
+  const [incomeScenario, setIncomeScenario] = React.useState("income_pass");
+  const [incomeCoverageMonths, setIncomeCoverageMonths] = React.useState(12);
+
   // UX state
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
@@ -484,6 +488,43 @@ function ApplyForm() {
 
   function buildPayload() {
     const address_line1 = apt ? `${street}, ${apt}` : street;
+    // Prepare custom fields for all mocks (SEON/Experian already use "scenario"; Plaid uses income_* keys)
+    const cf = {};
+    if (scenario) cf.scenario = scenario;
+
+    // Map income scenario presets to Plaid options understood by Taktile
+    // - income_force_mode: payroll | bank | document | empty
+    // - income_risk_profile: clean | suspicious
+    // - income_inject_error: e.g., RATE_LIMIT_EXCEEDED
+    // - income_coverage_months: integer
+    if (incomeScenario === "income_pass") {
+      cf.income_force_mode = "payroll";
+      cf.income_risk_profile = "clean";
+      cf.income_coverage_months = incomeCoverageMonths;
+    } else if (incomeScenario === "income_bank") {
+      cf.income_force_mode = "bank";
+      cf.income_risk_profile = "clean";
+      cf.income_coverage_months = incomeCoverageMonths;
+    } else if (incomeScenario === "income_empty") {
+      cf.income_force_mode = "empty";
+      cf.income_risk_profile = "clean";
+      cf.income_coverage_months = incomeCoverageMonths;
+    } else if (incomeScenario === "income_review") {
+      cf.income_force_mode = "payroll";
+      cf.income_risk_profile = "suspicious";
+      cf.income_coverage_months = incomeCoverageMonths;
+    } else if (incomeScenario === "income_ko") {
+      // Drive KO via bank fallback thin coverage (<3 months) and/or low net; we use coverage_months=2
+      cf.income_force_mode = "bank";
+      cf.income_risk_profile = "clean";
+      cf.income_coverage_months = 2;
+    } else if (incomeScenario === "income_error") {
+      cf.income_force_mode = "bank";
+      cf.income_risk_profile = "clean";
+      cf.income_inject_error = "RATE_LIMIT_EXCEEDED";
+      cf.income_coverage_months = incomeCoverageMonths;
+    }
+
     return {
       user_fullname: fullName,
       user_dob: dob,
@@ -497,7 +538,7 @@ function ApplyForm() {
       address_zip: zip,
       email,
       phone_number: phone,
-      custom_fields: scenario ? { scenario } : {},
+      custom_fields: cf,
     };
   }
 
@@ -752,6 +793,36 @@ function ApplyForm() {
         </select>
       </div>
 
+      {/* Testing helper: income */}
+      <div className="grid gap-2 sm:grid-cols-2">
+        <div>
+          <label className="mb-1 block text-xs font-medium text-slate-700">Income scenario (demo only)</label>
+          <select
+            className="w-full appearance-none rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
+            value={incomeScenario}
+            onChange={(e) => setIncomeScenario(e.target.value)}
+          >
+            <option value="income_pass">income_pass (Payroll PASS)</option>
+            <option value="income_bank">income_bank (Bank PASS)</option>
+            <option value="income_empty">income_empty (no income)</option>
+            <option value="income_review">income_review (suspicious → REVIEW)</option>
+            <option value="income_ko">income_ko (thin coverage KO)</option>
+            <option value="income_error">income_error (injected error)</option>
+          </select>
+        </div>
+        <div>
+          <label className="mb-1 block text-xs font-medium text-slate-700">Income coverage months</label>
+          <input
+            type="number"
+            min="1"
+            max="60"
+            className="w-full rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
+            value={incomeCoverageMonths}
+            onChange={(e) => setIncomeCoverageMonths(parseInt(e.target.value || "12", 10))}
+          />
+        </div>
+      </div>
+
       {/* Submit */}
       <button
         type="submit"
@@ -841,6 +912,46 @@ function ApplyForm() {
               Review reasons:
               <ul className="mt-1 list-disc pl-5">
                 {result.credit_decision.review_reasons.map((r) => (
+                  <li key={r} className="font-mono">{r}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="mt-3 text-sm font-semibold text-emerald-800">Income</div>
+          <div className="mt-1 text-sm text-slate-700">
+            Decision: <span className="font-mono">{result.income_decision?.decision ?? "—"}</span>
+          </div>
+          {result.income_decision?.source_used && (
+            <div className="mt-1 text-sm text-slate-700">
+              Source used: <span className="font-mono">{result.income_decision.source_used}</span>
+            </div>
+          )}
+          {typeof result.income_decision?.metrics?.net_monthly === "number" && (
+            <div className="mt-1 text-sm text-slate-700">
+              Net monthly: <span className="font-mono">${result.income_decision.metrics.net_monthly?.toFixed ? result.income_decision.metrics.net_monthly.toFixed(2) : result.income_decision.metrics.net_monthly}</span>
+            </div>
+          )}
+          {result.income_decision?.metrics?.coverage && (
+            <div className="mt-1 text-sm text-slate-700">
+              Coverage: <span className="font-mono">{result.income_decision.metrics.coverage}</span> ({result.income_decision.metrics.coverage_months} months)
+            </div>
+          )}
+          {Array.isArray(result.income_decision?.reasons) && result.income_decision.reasons.length > 0 && (
+            <div className="mt-1 text-sm text-slate-700">
+              KO reasons:
+              <ul className="mt-1 list-disc pl-5">
+                {result.income_decision.reasons.map((r) => (
+                  <li key={r} className="font-mono">{r}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {Array.isArray(result.income_decision?.review_reasons) && result.income_decision.review_reasons.length > 0 && (
+            <div className="mt-1 text-sm text-slate-700">
+              Review reasons:
+              <ul className="mt-1 list-disc pl-5">
+                {result.income_decision.review_reasons.map((r) => (
                   <li key={r} className="font-mono">{r}</li>
                 ))}
               </ul>

@@ -13,5 +13,9 @@ class Settings(BaseModel):
     EXPERIAN_CLIENT_REF: str = os.getenv("EXPERIAN_CLIENT_REF", "SBMYSQL")
     EXPERIAN_TIMEOUT_SECONDS: float = float(os.getenv("EXPERIAN_TIMEOUT_SECONDS", "8.0"))
 
+    # Plaid mock (Income) configuration
+    PLAID_BASE_URL: str = os.getenv("PLAID_BASE_URL", "http://localhost:8200")
+    PLAID_TIMEOUT_SECONDS: float = float(os.getenv("PLAID_TIMEOUT_SECONDS", "8.0"))
+
 
 settings = Settings()
