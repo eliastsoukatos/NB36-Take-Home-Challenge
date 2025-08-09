@@ -1,0 +1,99 @@
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+from typing import Optional, Dict, Any
+
+from .stages import B1
+from .clients.taktile_client import TaktileClient
+
+app = FastAPI(title="NB36 Backend (B*) — orchestrates via Taktile (T*)")
+
+# CORS for local development (frontend -> backend)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost",
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://127.0.0.1",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+taktile = TaktileClient()
+
+
+class ApplicationIntake(BaseModel):
+    user_fullname: str
+    user_dob: str
+    user_country: str
+    ssn: str
+    gov_id_type: str
+    gov_id_number: str
+    address_line1: str
+    address_city: str
+    address_state: str
+    address_zip: str
+    email: str
+    phone_number: str
+    custom_fields: Optional[Dict[str, Any]] = Field(default_factory=dict)
+
+
+@app.post("/apply/aml-first")
+def apply_aml_first(intake: ApplicationIntake):
+    # B1: Create case
+    case = B1.create_case(intake.dict())
+    # Delegate workflow to Taktile (T*)
+    try:
+        result = taktile.aml_first(case_id=case["case_id"], intake=case["intake"])
+    except Exception as e:
+        # Technical failure contacting Taktile — mark case accordingly
+        B1.update_case(case["case_id"], status="AML_DECLINE")
+        B1.append_timeline(
+            case["case_id"],
+            "taktile.error",
+            {"error": str(e)},
+        )
+        return {
+            "case_id": case["case_id"],
+            "status": "AML_DECLINE",
+            "aml_decision": {
+                "decision": "DECLINE",
+                "reasons": ["taktile_unavailable_or_error"],
+                "details": {"exception": str(e)},
+            },
+            "message": "AML stage failed due to technical error contacting Taktile.",
+        }
+
+    # Persist AML outcome on case
+    aml_decision = {
+        "decision": result.get("decision"),
+        "reasons": result.get("reasons", []),
+        "details": result.get("details", {}),
+    }
+    B1.update_case(
+        case["case_id"],
+        status=f"AML_{aml_decision['decision']}",
+        aml_raw=result.get("aml_raw"),
+        aml_decision=aml_decision,
+    )
+    B1.append_timeline(case["case_id"], "aml.completed", {"decision": aml_decision})
+
+    return {
+        "case_id": case["case_id"],
+        "status": f"AML_{aml_decision['decision']}",
+        "aml_decision": aml_decision,
+        "message": "AML stage completed via Taktile.",
+    }
+
+
+@app.get("/cases/{case_id}")
+def get_case(case_id: str):
+    c = B1.get_case(case_id)
+    if not c:
+        raise HTTPException(status_code=404, detail="Case not found")
+    return c
