@@ -43,9 +43,9 @@ export default function ApplyPageForm({ demoConfig }) {
   const [modalOpen, setModalOpen] = React.useState(false);
   const [phase, setPhase] = React.useState("running"); // 'running' | 'report'
   const [checks, setChecks] = React.useState([
-    { id: "identity", label: "Identity", status: "pending" },
+    { id: "identity", label: "AML Scan", status: "pending" },
     { id: "incomeVerification", label: "Income Verification", status: "pending" },
-    { id: "overageMonth", label: "Overage Month", status: "pending" },
+    { id: "overageMonth", label: "Credit Risk Assessment", status: "pending" },
     { id: "fraudSignals", label: "Fraud Signals", status: "pending" },
   ]);
   const [report, setReport] = React.useState(null);

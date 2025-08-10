@@ -82,9 +82,9 @@ export async function runApply(payload, onCheckUpdate) {
   const requestId = uuid();
 
   const checksBase = [
-    { id: "identity", label: "Identity", status: "pending" },
+    { id: "identity", label: "AML Scan", status: "pending" },
     { id: "incomeVerification", label: "Income Verification", status: "pending" },
-    { id: "overageMonth", label: "Overage Month", status: "pending" },
+    { id: "overageMonth", label: "Credit Risk Assessment", status: "pending" },
     { id: "fraudSignals", label: "Fraud Signals", status: "pending" },
   ];
 
@@ -124,7 +124,7 @@ export async function runApply(payload, onCheckUpdate) {
   // Identity from AML decision
   const identity = {
     id: "identity",
-    label: "Identity",
+    label: "AML Scan",
     status: decisionToStatus(amlDecision),
     detail: amlDecision || undefined,
     raw: safeClone(data?.aml_decision),
@@ -146,7 +146,7 @@ export async function runApply(payload, onCheckUpdate) {
   }
   const overageMonth = {
     id: "overageMonth",
-    label: "Overage Month",
+    label: "Credit Risk Assessment",
     status: typeof incomeCoverageMonths === "number" ? (incomeCoverageMonths >= 3 ? "pass" : "fail") : "pending",
     detail: overageDetail || undefined,
     raw: { coverage_months: incomeCoverageMonths },

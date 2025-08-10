@@ -36,9 +36,7 @@ export default function ChecksList({ items = [] }) {
             <div className="flex items-center gap-2">
               <StatusIcon status={item.status} />
               <div className="text-sm font-medium text-slate-800">{item.label}</div>
-              {item.detail ? (
-                <div className="text-xs text-slate-500">({item.detail})</div>
-              ) : null}
+              
             </div>
             <div className="text-xs tabular-nums text-slate-500">
               {typeof item.tStart === "number" && typeof item.tEnd === "number"
