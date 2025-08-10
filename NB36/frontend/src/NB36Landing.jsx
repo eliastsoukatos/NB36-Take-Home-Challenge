@@ -14,8 +14,10 @@ import {
   Trophy,
   Gift,
 } from "lucide-react";
+import ApplyPageForm from "../components/form/ApplyPageForm.jsx";
+import DemoPanel from "../components/demo/DemoPanel.jsx";
 
-// NB36 — Single-file, preview-ready landing page
+// NB36 — Landing page with redesigned Apply flow (modal + balanced layout)
 // TailwindCSS + Framer Motion + Lucide icons
 // Palette: white base with emerald/green accents
 
@@ -52,6 +54,8 @@ const features = [
   },
 ];
 
+const REPO_URL = "https://github.com/your-repo"; // TODO: replace with your real GitHub repo URL
+
 const faqs = [
   {
     q: "What’s the APR?",
@@ -76,13 +80,17 @@ const faqs = [
 ];
 
 export default function NB36Landing() {
+  // Hidden-by-default demo controls; passed to ApplyPageForm
+  const [demoConfig, setDemoConfig] = React.useState({
+    scenario: "pass",
+    incomeScenario: "income_pass",
+    incomeCoverageMonths: 12,
+  });
+
   return (
     <div className="min-h-screen bg-white text-slate-900">
       {/* Decorative background */}
-      <div
-        className="pointer-events-none absolute inset-0 -z-10"
-        aria-hidden
-      >
+      <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
         <div className="absolute -top-1/3 left-1/2 h-[700px] w-[700px] -translate-x-1/2 rounded-full bg-emerald-400/20 blur-[120px]" />
         <div className="absolute bottom-[-200px] right-[-200px] h-[500px] w-[500px] rounded-full bg-emerald-200/30 blur-[100px]" />
       </div>
@@ -93,18 +101,20 @@ export default function NB36Landing() {
       <Features />
       <CardShowcase />
       <Security />
-      <Testimonials />
       <FAQ />
-      <CTA />
+      <CTA demoConfig={demoConfig} setDemoConfig={setDemoConfig} />
       <Footer />
       <StickyApplyBar />
+
+      {/* Hidden demo controls (gated in component) */}
+      <DemoPanel demoConfig={demoConfig} setDemoConfig={setDemoConfig} />
     </div>
   );
 }
 
 function Header() {
   const navItems = [
-    { label: "Features", href: "#features" },
+    { label: "Diagram", href: "/diagram.html" },
     { label: "Rewards", href: "#rewards" },
     { label: "Security", href: "#security" },
     { label: "FAQ", href: "#faq" },
@@ -132,17 +142,19 @@ function Header() {
         <div className="hidden md:flex">
           <a
             href="#apply"
+            aria-label="Apply Now"
             className="group inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-600/20 transition hover:bg-emerald-700"
           >
-            Apply now <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            Apply Now <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </a>
         </div>
         <div className="md:hidden">
           <a
             href="#apply"
+            aria-label="Open application form section"
             className="rounded-xl border border-emerald-600 px-3 py-2 text-sm font-semibold text-emerald-700"
           >
-            Apply
+            Open form
           </a>
         </div>
       </div>
@@ -159,24 +171,26 @@ function Hero() {
             <Sparkles className="h-3.5 w-3.5" />
             New: NB36 Credit Card
           </div>
-          <h1 className="mt-4 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl">
-            A cleaner, greener way to <span className="text-emerald-600">credit</span>
+<h1 className="mt-4 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl">
+            A new way to <span className="text-emerald-600">credit</span>
+<span className="block">powered by <span className="text-slate-900">Taktile</span></span>
           </h1>
           <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
-            Meet the NB36 Card—modern design, powerful rewards, and security you can trust. Apply in minutes and start using your virtual card instantly.
+            Review the detailed solution architecture diagram to understand the end-to-end process—from the moment of application to the final delivery.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <a
               href="#apply"
+              aria-label="Apply Now"
               className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-600/25 transition hover:bg-emerald-700"
             >
-              Get started <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              Apply Now <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </a>
             <a
-              href="#features"
+              href="/diagram.html"
               className="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-200 bg-white px-6 py-3 text-sm font-semibold text-emerald-700 hover:border-emerald-300"
             >
-              See features
+              View diagram
             </a>
           </div>
           <div className="mt-6 flex items-center gap-6 text-xs text-slate-500">
@@ -184,15 +198,21 @@ function Hero() {
             <div className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-600" /> Instant virtual card</div>
           </div>
         </div>
-        <div className="relative">
-          <motion.div
+        <div className="relative pb-6">
+<motion.img
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="relative mx-auto w-full max-w-md"
-          >
-            <CardMockup />
-          </motion.div>
+            style={{ filter: "drop-shadow(0 18px 28px rgba(16,24,40,0.22)) drop-shadow(0 2px 8px rgba(16,24,40,0.12))" }}
+            className="relative z-10 mx-auto w-full max-w-md rounded-3xl"
+src="/images/cc_front.png"
+            alt="NB36 Card"
+/>
+          {/* Under-ellipse shadow */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 -bottom-2 h-12 w-[110%] -translate-x-1/2 rounded-[999px] bg-black/30 blur-3xl"
+          />
           {/* Soft glow */}
           <div className="absolute left-1/2 top-1/2 -z-10 h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full bg-emerald-400/20 blur-3xl" />
         </div>
@@ -202,14 +222,70 @@ function Hero() {
 }
 
 function Highlights() {
+  const apis = [
+    {
+      name: "SEON",
+      desc: "Fraud signals & device risk mock for demo flows.",
+      href: REPO_URL + "?ref=seon",
+      icon: Shield,
+      accent: "from-emerald-50 to-white",
+    },
+    {
+      name: "Experian",
+      desc: "Credit bureau mock with tiers & scorecard hints.",
+      href: REPO_URL + "?ref=experian",
+      icon: Trophy,
+      accent: "from-emerald-50 to-white",
+    },
+    {
+      name: "Plain",
+      desc: "Income verification mock with payroll/bank modes.",
+      href: REPO_URL + "?ref=plain",
+      icon: Banknote,
+      accent: "from-emerald-50 to-white",
+    },
+    {
+      name: "Taktile",
+      desc: "Decision orchestration mock powering final outcome.",
+      href: REPO_URL + "?ref=taktile",
+      icon: Sparkles,
+      accent: "from-emerald-50 to-white",
+    },
+  ];
+
   return (
     <section id="rewards" className="bg-gradient-to-b from-emerald-50/60 to-white">
       <div className="mx-auto max-w-7xl px-4 py-12 md:px-6">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <Highlight label="Dining" value="5%" note="up to quarterly cap" />
-          <Highlight label="Travel" value="3%" note="air, hotels, rides" />
-          <Highlight label="Everything else" value="1%" note="unlimited" />
-          <Highlight label="Annual fee" value="$0" note="no surprises" />
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">4 Mock APIs for this Demo</h2>
+          <p className="mt-3 text-slate-600">
+            SEON, Experian, Plain, and Taktile power this demo end-to-end.
+          </p>
+          <a
+            href={REPO_URL}
+            className="mt-4 inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-emerald-700 hover:border-emerald-300"
+          >
+            View GitHub repository
+          </a>
+        </div>
+
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {apis.map(({ name, desc, href, icon: Icon, accent }) => (
+            <a
+              key={name}
+              href={href}
+              className="group block rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm ring-emerald-100 transition hover:-translate-y-0.5 hover:shadow-md hover:ring-2"
+            >
+              <div className={`mb-4 inline-flex rounded-xl bg-gradient-to-br ${accent} p-3 text-emerald-700 ring-1 ring-inset ring-emerald-100 group-hover:shadow`}>
+                <Icon className="h-5 w-5" />
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900">{name}</h3>
+              <p className="mt-1 text-sm leading-relaxed text-slate-600">{desc}</p>
+              <div className="mt-3 text-sm font-medium text-emerald-700 group-hover:underline">
+                View on GitHub →
+              </div>
+            </a>
+          ))}
         </div>
       </div>
     </section>
@@ -227,32 +303,7 @@ function Highlight({ label, value, note }) {
 }
 
 function Features() {
-  return (
-    <section id="features" className="mx-auto max-w-7xl px-4 py-16 md:px-6">
-      <div className="mx-auto max-w-2xl text-center">
-        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Thoughtful features, real benefits</h2>
-        <p className="mt-3 text-slate-600">Everything you expect from a modern card—and a few delightful surprises.</p>
-      </div>
-      <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {features.map(({ title, desc, icon: Icon }) => (
-          <motion.div
-            key={title}
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            viewport={{ once: true }}
-            className="group rounded-2xl border border-emerald-100 bg-white/80 p-6 shadow-sm backdrop-blur-sm transition hover:-translate-y-0.5 hover:shadow-md"
-          >
-            <div className="mb-4 inline-flex rounded-xl bg-emerald-50 p-3 text-emerald-700 ring-1 ring-inset ring-emerald-100">
-              <Icon className="h-5 w-5" />
-            </div>
-            <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
-            <p className="mt-1 text-sm leading-relaxed text-slate-600">{desc}</p>
-          </motion.div>
-        ))}
-      </div>
-    </section>
-  );
+  return null;
 }
 
 function CardShowcase() {
@@ -277,25 +328,16 @@ function CardShowcase() {
             <span className="text-sm text-white/70">Add to Apple Pay® & Google Pay™</span>
           </div>
         </div>
-        <div className="relative grid grid-cols-1 gap-6 sm:grid-cols-2">
-          <motion.div
-            initial={{ rotate: -6, y: 10, opacity: 0 }}
-            whileInView={{ rotate: -6, y: 0, opacity: 1 }}
+        <div className="relative">
+          <motion.img
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
-            className="relative"
-          >
-            <CardMockup variant="emerald" className="shadow-2xl" />
-          </motion.div>
-          <motion.div
-            initial={{ rotate: 6, y: 10, opacity: 0 }}
-            whileInView={{ rotate: 6, y: 0, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.05 }}
-            viewport={{ once: true }}
-            className="relative"
-          >
-            <CardMockup variant="white" className="shadow-2xl" />
-          </motion.div>
+            className="mx-auto w-full max-w-lg rounded-2xl"
+            src="/images/cc_back.png"
+            alt="NB36 card"
+          />
         </div>
       </div>
     </section>
@@ -434,536 +476,17 @@ function FAQ() {
   );
 }
 
-function CTA() {
+function CTA({ demoConfig, setDemoConfig }) {
   return (
     <section id="apply" className="relative overflow-hidden py-16">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(50%_50%_at_50%_50%,_rgba(16,185,129,0.18)_0%,_rgba(16,185,129,0)_60%)]" />
-      <div className="mx-auto max-w-5xl rounded-3xl border border-emerald-200 bg-white/80 p-8 shadow-xl backdrop-blur">
-        <div className="grid items-center gap-8 md:grid-cols-2">
-          <div>
-            <h3 className="text-2xl font-bold tracking-tight">Apply in minutes</h3>
-            <p className="mt-2 text-sm text-slate-600">No annual fee. No hidden charges. Instant virtual card on approval.</p>
-            <ul className="mt-4 space-y-2 text-sm text-slate-600">
-              <li className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600" /> Soft credit check to see your options</li>
-              <li className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600" /> Real‑time status updates</li>
-              <li className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600" /> Add to mobile wallet instantly</li>
-            </ul>
-            <p className="mt-4 text-xs text-slate-500">This is a demo environment—please don’t enter real SSNs or government ID numbers here.</p>
-          </div>
-          <div>
-            <ApplyForm />
-          </div>
-        </div>
+      <div className="mx-auto max-w-5xl rounded-3xl border border-emerald-200 bg-white/80 p-6 shadow-xl backdrop-blur">
+        <ApplyPageForm demoConfig={demoConfig} />
+        <p className="mt-4 text-xs text-slate-500">
+          This is a demo environment—please don’t enter real SSNs or government ID numbers here.
+        </p>
       </div>
     </section>
-  );
-}
-
-function ApplyForm() {
-  const [needsPriorAddress, setNeedsPriorAddress] = React.useState(false);
-
-  // Form state
-  const [fullName, setFullName] = React.useState("");
-  const [dob, setDob] = React.useState("");
-  const [ssn, setSsn] = React.useState("");
-  const [govIdType, setGovIdType] = React.useState("");
-  const [govIdNumber, setGovIdNumber] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [phone, setPhone] = React.useState("");
-  const [street, setStreet] = React.useState("");
-  const [apt, setApt] = React.useState("");
-  const [city, setCity] = React.useState("");
-  const [state, setState] = React.useState("");
-  const [zip, setZip] = React.useState("");
-  const [scenario, setScenario] = React.useState("pass"); // for testing: pass | review | ko_compliance
-
-  // Income testing state
-  const [incomeScenario, setIncomeScenario] = React.useState("income_pass");
-  const [incomeCoverageMonths, setIncomeCoverageMonths] = React.useState(12);
-
-  // UX state
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState("");
-  const [result, setResult] = React.useState(null);
-
-  function buildPayload() {
-    const address_line1 = apt ? `${street}, ${apt}` : street;
-    // Prepare custom fields for all mocks (SEON/Experian already use "scenario"; Plaid uses income_* keys)
-    const cf = {};
-    if (scenario) cf.scenario = scenario;
-
-    // Map income scenario presets to Plaid options understood by Taktile
-    // - income_force_mode: payroll | bank | document | empty
-    // - income_risk_profile: clean | suspicious
-    // - income_inject_error: e.g., RATE_LIMIT_EXCEEDED
-    // - income_coverage_months: integer
-    if (incomeScenario === "income_pass") {
-      cf.income_force_mode = "payroll";
-      cf.income_risk_profile = "clean";
-      cf.income_coverage_months = incomeCoverageMonths;
-    } else if (incomeScenario === "income_bank") {
-      cf.income_force_mode = "bank";
-      cf.income_risk_profile = "clean";
-      cf.income_coverage_months = incomeCoverageMonths;
-    } else if (incomeScenario === "income_empty") {
-      cf.income_force_mode = "empty";
-      cf.income_risk_profile = "clean";
-      cf.income_coverage_months = incomeCoverageMonths;
-    } else if (incomeScenario === "income_review") {
-      cf.income_force_mode = "payroll";
-      cf.income_risk_profile = "suspicious";
-      cf.income_coverage_months = incomeCoverageMonths;
-    } else if (incomeScenario === "income_ko") {
-      // Drive KO via bank fallback thin coverage (<3 months) and/or low net; we use coverage_months=2
-      cf.income_force_mode = "bank";
-      cf.income_risk_profile = "clean";
-      cf.income_coverage_months = 2;
-    } else if (incomeScenario === "income_error") {
-      cf.income_force_mode = "bank";
-      cf.income_risk_profile = "clean";
-      cf.income_inject_error = "RATE_LIMIT_EXCEEDED";
-      cf.income_coverage_months = incomeCoverageMonths;
-    }
-
-    return {
-      user_fullname: fullName,
-      user_dob: dob,
-      user_country: "US", // default; adjust if you collect it separately
-      ssn,
-      gov_id_type: govIdType,
-      gov_id_number: govIdNumber,
-      address_line1,
-      address_city: city,
-      address_state: state,
-      address_zip: zip,
-      email,
-      phone_number: phone,
-      custom_fields: cf,
-    };
-  }
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-    setResult(null);
-    try {
-      const payload = buildPayload();
-      const resp = await fetch("http://localhost:9000/apply/kyc", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await resp.json();
-      if (!resp.ok) {
-        throw new Error(data?.detail || `HTTP ${resp.status}`);
-      }
-      setResult(data);
-    } catch (err) {
-      setError(err?.message || "Submission failed");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="grid gap-3">
-      {/* Name */}
-      <div>
-        <label className="mb-1 block text-xs font-medium text-slate-700">Full name</label>
-        <input
-          required
-          type="text"
-          placeholder="Alex Johnson"
-          className="w-full rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-        />
-      </div>
-
-      {/* DOB + SSN */}
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <label className="mb-1 block text-xs font-medium text-slate-700">Date of Birth</label>
-          <input
-            required
-            type="date"
-            className="w-full rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
-            value={dob}
-            onChange={(e) => setDob(e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-slate-700">SSN</label>
-          <input
-            required
-            type="password"
-            inputMode="numeric"
-            placeholder="123-45-6789"
-            className="w-full rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm tracking-widest outline-none ring-emerald-500/20 placeholder:tracking-normal focus:ring"
-            aria-describedby="ssn-help"
-            value={ssn}
-            onChange={(e) => setSsn(e.target.value)}
-          />
-          <p id="ssn-help" className="mt-1 text-[11px] text-slate-500">For demo only — don’t use real SSNs.</p>
-        </div>
-      </div>
-
-      {/* Government ID */}
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <label className="mb-1 block text-xs font-medium text-slate-700">Government ID Type</label>
-          <select
-            required
-            className="w-full appearance-none rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
-            value={govIdType}
-            onChange={(e) => setGovIdType(e.target.value)}
-          >
-            <option value="">Select one</option>
-            <option value="DL">Driver’s License</option>
-            <option value="STATE_ID">State ID</option>
-            <option value="PASSPORT">Passport</option>
-          </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-slate-700">ID Number</label>
-          <input
-            required
-            type="text"
-            placeholder="ID / Passport #"
-            className="w-full rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
-            value={govIdNumber}
-            onChange={(e) => setGovIdNumber(e.target.value)}
-          />
-        </div>
-      </div>
-
-      {/* Contact */}
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div>
-          <label className="mb-1 block text-xs font-medium text-slate-700">Email</label>
-          <input
-            required
-            type="email"
-            placeholder="alex@email.com"
-            className="w-full rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-slate-700">Mobile Phone</label>
-          <input
-            required
-            type="tel"
-            inputMode="tel"
-            placeholder="(555) 555‑1234"
-            className="w-full rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
-        </div>
-      </div>
-
-      {/* Current Address */}
-      <fieldset className="mt-1 rounded-xl border border-emerald-200 p-3">
-        <legend className="px-1 text-xs font-semibold text-emerald-700">Current Address</legend>
-        <div className="grid gap-3">
-          <input
-            required
-            type="text"
-            placeholder="Street address"
-            className="w-full rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
-            value={street}
-            onChange={(e) => setStreet(e.target.value)}
-          />
-          <div className="grid gap-3 sm:grid-cols-4">
-            <input
-              type="text"
-              placeholder="Apt / Unit (optional)"
-              className="sm:col-span-1 w-full rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
-              value={apt}
-              onChange={(e) => setApt(e.target.value)}
-            />
-            <input
-              required
-              type="text"
-              placeholder="City"
-              className="sm:col-span-2 w-full rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-            />
-            <input
-              required
-              type="text"
-              placeholder="State"
-              className="sm:col-span-1 w-full rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
-              value={state}
-              onChange={(e) => setState(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <input
-              required
-              type="text"
-              inputMode="numeric"
-              placeholder="ZIP"
-              className="sm:col-span-1 w-full rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
-              value={zip}
-              onChange={(e) => setZip(e.target.value)}
-            />
-            <div className="sm:col-span-2 flex items-center gap-2 rounded-xl border border-emerald-200 px-3 py-2.5">
-              <input
-                id="priorAddress"
-                type="checkbox"
-                className="h-4 w-4 rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500"
-                onChange={(e) => setNeedsPriorAddress(e.target.checked)}
-              />
-              <label htmlFor="priorAddress" className="text-xs text-slate-700">
-                I’ve lived at this address for less than 2 years
-              </label>
-            </div>
-          </div>
-        </div>
-      </fieldset>
-
-      {/* Prior Address (conditional) */}
-      {needsPriorAddress && (
-        <fieldset className="rounded-xl border border-emerald-200 p-3">
-          <legend className="px-1 text-xs font-semibold text-emerald-700">Prior Address</legend>
-          <div className="grid gap-3">
-            <input
-              type="text"
-              placeholder="Street address"
-              className="w-full rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
-            />
-            <div className="grid gap-3 sm:grid-cols-4">
-              <input
-                type="text"
-                placeholder="Apt / Unit (optional)"
-                className="sm:col-span-1 w-full rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
-              />
-              <input
-                type="text"
-                placeholder="City"
-                className="sm:col-span-2 w-full rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
-              />
-              <input
-                type="text"
-                placeholder="State"
-                className="sm:col-span-1 w-full rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
-              />
-            </div>
-            <input
-              type="text"
-              inputMode="numeric"
-              placeholder="ZIP"
-              className="w-full rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
-            />
-          </div>
-        </fieldset>
-      )}
-
-      {/* Income Range (kept) */}
-      <div>
-        <label className="mb-1 block text-xs font-medium text-slate-700">Income range</label>
-        <select className="w-full appearance-none rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring">
-          <option>Under $30,000</option>
-          <option>$30,000–$60,000</option>
-          <option>$60,000–$100,000</option>
-          <option>$100,000–$150,000</option>
-          <option>$150,000+</option>
-        </select>
-      </div>
-
-      {/* Testing helper: scenario */}
-      <div>
-        <label className="mb-1 block text-xs font-medium text-slate-700">Test scenario (demo only)</label>
-        <select
-          className="w-full appearance-none rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
-          value={scenario}
-          onChange={(e) => setScenario(e.target.value)}
-        >
-          <option value="pass">pass (End-to-end PASS)</option>
-          <option value="review">review (Fraud REVIEW)</option>
-          <option value="ko_compliance">ko_compliance (AML DECLINE)</option>
-          <option value="ko_fraud">ko_fraud (Fraud DECLINE/REVIEW)</option>
-          <option value="review_credit">review_credit (CREDIT REVIEW)</option>
-          <option value="ko_credit">ko_credit (CREDIT DECLINE)</option>
-        </select>
-      </div>
-
-      {/* Testing helper: income */}
-      <div className="grid gap-2 sm:grid-cols-2">
-        <div>
-          <label className="mb-1 block text-xs font-medium text-slate-700">Income scenario (demo only)</label>
-          <select
-            className="w-full appearance-none rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
-            value={incomeScenario}
-            onChange={(e) => setIncomeScenario(e.target.value)}
-          >
-            <option value="income_pass">income_pass (Payroll PASS)</option>
-            <option value="income_bank">income_bank (Bank PASS)</option>
-            <option value="income_empty">income_empty (no income)</option>
-            <option value="income_review">income_review (suspicious → REVIEW)</option>
-            <option value="income_ko">income_ko (thin coverage KO)</option>
-            <option value="income_error">income_error (injected error)</option>
-          </select>
-        </div>
-        <div>
-          <label className="mb-1 block text-xs font-medium text-slate-700">Income coverage months</label>
-          <input
-            type="number"
-            min="1"
-            max="60"
-            className="w-full rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm outline-none ring-emerald-500/20 focus:ring"
-            value={incomeCoverageMonths}
-            onChange={(e) => setIncomeCoverageMonths(parseInt(e.target.value || "12", 10))}
-          />
-        </div>
-      </div>
-
-      {/* Submit */}
-      <button
-        type="submit"
-        disabled={loading}
-        className="mt-1 inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-600/25 transition hover:bg-emerald-700 disabled:opacity-60"
-      >
-        {loading ? "Submitting..." : "Apply now"} <ArrowRight className="h-4 w-4" />
-      </button>
-      <p className="text-xs text-slate-500">By submitting, you agree to be contacted about your application. This demo does not collect real data.</p>
-
-      {/* Error */}
-      {error && (
-        <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
-
-      {/* Result */}
-      {result && (
-        <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-          <div className="text-sm font-semibold text-emerald-800">KYC result</div>
-          <div className="mt-1 text-sm text-slate-700">
-            Overall status: <span className="font-mono">{result.status}</span>
-          </div>
-
-          <div className="mt-3 text-sm font-semibold text-emerald-800">AML</div>
-          <div className="mt-1 text-sm text-slate-700">
-            Decision: <span className="font-mono">{result.aml_decision?.decision}</span>
-          </div>
-          {Array.isArray(result.aml_decision?.reasons) && result.aml_decision.reasons.length > 0 && (
-            <div className="mt-1 text-sm text-slate-700">
-              Reasons:
-              <ul className="mt-1 list-disc pl-5">
-                {result.aml_decision.reasons.map((r) => (
-                  <li key={r} className="font-mono">{r}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <div className="mt-3 text-sm font-semibold text-emerald-800">Fraud</div>
-          <div className="mt-1 text-sm text-slate-700">
-            Decision: <span className="font-mono">{result.fraud_decision?.decision ?? "—"}</span>
-          </div>
-          {typeof result.provisional_tier === "number" && (
-            <div className="mt-1 text-sm text-slate-700">
-              Fraud provisional tier: <span className="font-mono">{result.provisional_tier}</span>
-            </div>
-          )}
-          {Array.isArray(result.fraud_decision?.reasons) && result.fraud_decision.reasons.length > 0 && (
-            <div className="mt-1 text-sm text-slate-700">
-              Reasons:
-              <ul className="mt-1 list-disc pl-5">
-                {result.fraud_decision.reasons.map((r) => (
-                  <li key={r} className="font-mono">{r}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <div className="mt-3 text-sm font-semibold text-emerald-800">Credit</div>
-          <div className="mt-1 text-sm text-slate-700">
-            Decision: <span className="font-mono">{result.credit_decision?.decision ?? "—"}</span>
-          </div>
-          {typeof (result.bureau_tier ?? result.credit_decision?.bureau_tier) === "number" && (
-            <div className="mt-1 text-sm text-slate-700">
-              Bureau tier: <span className="font-mono">{(result.bureau_tier ?? result.credit_decision?.bureau_tier)}</span>
-            </div>
-          )}
-          {typeof (result.final_tier ?? result.credit_decision?.final_tier) === "number" && (
-            <div className="mt-1 text-sm text-slate-700">
-              Final tier: <span className="font-mono">{(result.final_tier ?? result.credit_decision?.final_tier)}</span>
-            </div>
-          )}
-          {Array.isArray(result.credit_decision?.ko_reasons) && result.credit_decision.ko_reasons.length > 0 && (
-            <div className="mt-1 text-sm text-slate-700">
-              KO reasons:
-              <ul className="mt-1 list-disc pl-5">
-                {result.credit_decision.ko_reasons.map((r) => (
-                  <li key={r} className="font-mono">{r}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {Array.isArray(result.credit_decision?.review_reasons) && result.credit_decision.review_reasons.length > 0 && (
-            <div className="mt-1 text-sm text-slate-700">
-              Review reasons:
-              <ul className="mt-1 list-disc pl-5">
-                {result.credit_decision.review_reasons.map((r) => (
-                  <li key={r} className="font-mono">{r}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <div className="mt-3 text-sm font-semibold text-emerald-800">Income</div>
-          <div className="mt-1 text-sm text-slate-700">
-            Decision: <span className="font-mono">{result.income_decision?.decision ?? "—"}</span>
-          </div>
-          {result.income_decision?.source_used && (
-            <div className="mt-1 text-sm text-slate-700">
-              Source used: <span className="font-mono">{result.income_decision.source_used}</span>
-            </div>
-          )}
-          {typeof result.income_decision?.metrics?.net_monthly === "number" && (
-            <div className="mt-1 text-sm text-slate-700">
-              Net monthly: <span className="font-mono">${result.income_decision.metrics.net_monthly?.toFixed ? result.income_decision.metrics.net_monthly.toFixed(2) : result.income_decision.metrics.net_monthly}</span>
-            </div>
-          )}
-          {result.income_decision?.metrics?.coverage && (
-            <div className="mt-1 text-sm text-slate-700">
-              Coverage: <span className="font-mono">{result.income_decision.metrics.coverage}</span> ({result.income_decision.metrics.coverage_months} months)
-            </div>
-          )}
-          {Array.isArray(result.income_decision?.reasons) && result.income_decision.reasons.length > 0 && (
-            <div className="mt-1 text-sm text-slate-700">
-              KO reasons:
-              <ul className="mt-1 list-disc pl-5">
-                {result.income_decision.reasons.map((r) => (
-                  <li key={r} className="font-mono">{r}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {Array.isArray(result.income_decision?.review_reasons) && result.income_decision.review_reasons.length > 0 && (
-            <div className="mt-1 text-sm text-slate-700">
-              Review reasons:
-              <ul className="mt-1 list-disc pl-5">
-                {result.income_decision.review_reasons.map((r) => (
-                  <li key={r} className="font-mono">{r}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <div className="mt-2 text-xs text-slate-500">
-            Case ID: <span className="font-mono">{result.case_id}</span>
-          </div>
-        </div>
-      )}
-    </form>
   );
 }
 
@@ -1002,9 +525,10 @@ function StickyApplyBar() {
         </div>
         <a
           href="#apply"
+          aria-label="Open application form section"
           className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-emerald-600/25"
         >
-          Apply now
+          Open form
         </a>
       </div>
     </div>
