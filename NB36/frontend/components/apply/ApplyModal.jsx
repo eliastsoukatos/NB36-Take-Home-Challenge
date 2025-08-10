@@ -3,7 +3,7 @@ import { Dialog } from "@headlessui/react";
 import { motion } from "framer-motion";
 import ChecksList from "./ChecksList.jsx";
 import TechDetails from "./TechDetails.jsx";
-import { Copy, CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, XCircle } from "lucide-react";
 
 function Donut({ percent = 0 }) {
   const size = 80;
@@ -48,26 +48,44 @@ function Donut({ percent = 0 }) {
  * }} props
  */
 export default function ApplyModal({ open, onClose, phase, checks = [], report, logs, onDownloadJson, onCopyId }) {
-  const passed = checks.filter((c) => c.status === "pass").length;
-  const percent = checks.length > 0 ? Math.round((passed / checks.length) * 100) : 0;
-  const backendStatus = (report?.summary?.status || "").toString().toUpperCase();
-  const overall =
-    report?.summary?.overall ||
-    (checks.every((c) => c.status === "pass") ? "pass" : checks.some((c) => c.status === "fail") ? "fail" : "pending");
-  let mainTone = "neutral";
-  let mainLabel = "Processing";
-  if (backendStatus.includes("PASS") || overall === "pass") {
-    mainTone = "success";
-    mainLabel = "Eligible";
-  } else if (backendStatus.includes("REVIEW")) {
-    mainTone = "warning";
-    mainLabel = "Needs Review";
-  } else if (backendStatus.includes("KO") || backendStatus.includes("DECLINE") || overall === "fail") {
-    mainTone = "danger";
-    mainLabel = "Not Eligible";
-  }
-  const tiers = report?.summary?.tiers || {};
-  const finalTier = tiers?.final ?? null;
+  // Derive approval data from raw backend response (prefer logs.requests[0].response)
+  const raw = logs?.requests?.[0]?.response || {};
+  const amlDecision = raw?.aml_decision?.decision || "";
+  const fraudDecision = (raw?.fraud_decision?.decision || "").toUpperCase();
+  const creditDecision = raw?.credit_decision?.decision || "";
+  const incomeDecision = raw?.income_decision?.decision || "";
+
+  const isAmlPass = amlDecision === "PROCEED";
+  const isFraudPass = fraudDecision.includes("PASS");
+  const isCreditPass = creditDecision === "CREDIT_PASS";
+  const isIncomePass = incomeDecision === "INCOME_PASS";
+  const isApproved = isAmlPass && isFraudPass && isCreditPass && isIncomePass;
+
+  const creditLimit =
+    typeof raw?.income_decision?.credit_limit === "number" ? raw.income_decision.credit_limit : null;
+
+  const userTier =
+    typeof raw?.final_tier === "number"
+      ? raw.final_tier
+      : typeof raw?.credit_decision?.final_tier === "number"
+      ? raw.credit_decision.final_tier
+      : typeof report?.summary?.tiers?.final === "number"
+      ? report.summary.tiers.final
+      : null;
+
+  const locale = typeof navigator !== "undefined" && navigator.language ? navigator.language : "en-US";
+  const currency = "USD";
+  const formattedLimit =
+    typeof creditLimit === "number"
+      ? new Intl.NumberFormat(locale, { style: "currency", currency }).format(creditLimit)
+      : "—";
+
+  const checkList = [
+    { label: "AML Scan", ok: isAmlPass },
+    { label: "Fraud Signals", ok: isFraudPass },
+    { label: "Credit Risk Assessment", ok: isCreditPass },
+    { label: "Income Verification", ok: isIncomePass },
+  ];
 
   return (
     <Dialog open={open} onClose={onClose} className="relative z-[100]">
@@ -83,8 +101,12 @@ export default function ApplyModal({ open, onClose, phase, checks = [], report, 
             <div className="w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl" role="document">
               <div className="border-b border-slate-200 px-4 py-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-base font-semibold text-slate-900">
-                    {phase === "running" ? "Checking…" : "Eligibility Report"}
+<h3 className="text-base font-semibold text-slate-900">
+                    {phase === "running"
+                      ? "Checking…"
+                      : isApproved
+                      ? "🎉 Congratulations! You’re eligible for a credit card"
+                      : "⚠️ Unfortunately, you are not eligible for a credit card at this time"}
                   </h3>
                   <button
                     onClick={onClose}
@@ -107,57 +129,41 @@ export default function ApplyModal({ open, onClose, phase, checks = [], report, 
                   </div>
                 ) : (
                   <div className="space-y-5">
-                    <div className="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-center">
-                      <Donut percent={percent} />
-                      <div className="space-y-2">
-                            <div className="flex flex-wrap items-center gap-2">
-                          <Badge tone={mainTone}>
-                            {mainLabel}
-                          </Badge>
-                          {finalTier != null ? <Badge tone="neutral">Final Tier {String(finalTier)}</Badge> : null}
-                          {checks.map((c) => (
-                            <Badge key={c.id} tone={c.status === "pass" ? "success" : c.status === "fail" ? "danger" : "neutral"}>
-                              {c.label}
-                            </Badge>
-                          ))}
-                        </div>
-                        <div className="text-sm text-slate-600">
-                          Request ID:{" "}
-                          <code className="rounded bg-slate-100 px-1.5 py-0.5">{report?.requestId || "—"}</code>
-                          <button
-                            onClick={onCopyId}
-                            className="ml-2 inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50"
-                            aria-label="Copy Request ID"
-                          >
-                            <Copy className="h-3.5 w-3.5" />
-                            Copy
-                          </button>
+                    <p className="text-sm text-slate-600">
+                      {isApproved
+                        ? "Your application has been approved."
+                        : "We encourage you to explore our other programs that might be a better fit for your needs."}
+                    </p>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+                        <div className="text-xs font-medium text-emerald-700">Credit Limit</div>
+                        <div className="mt-1 text-3xl font-extrabold tracking-tight text-emerald-800">
+                          {formattedLimit}
                         </div>
                       </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={onDownloadJson}
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                      >
-                        Download JSON
-                      </button>
-                      <button
-                        type="button"
-                        onClick={onClose}
-                        className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700"
-                      >
-                        Done
-                      </button>
+                      <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                        <div className="text-xs font-medium text-slate-600">Tier</div>
+                        <div className="mt-1 text-3xl font-extrabold tracking-tight text-slate-900">
+                          {userTier != null ? String(userTier) : "—"}
+                        </div>
+                      </div>
                     </div>
 
                     <div>
-                      <h4 className="text-sm font-semibold text-slate-900">Checks</h4>
-                      <div className="mt-2">
-                        <ChecksList items={checks} />
-                      </div>
+                      <h4 className="text-sm font-semibold text-slate-900">Eligibility Checks</h4>
+                      <ul className="mt-2 grid gap-2">
+                        {checkList.map((c) => (
+                          <li key={c.label} className="flex items-center gap-2 text-sm">
+                            {c.ok ? (
+                              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                            ) : (
+                              <XCircle className="h-5 w-5 text-red-600" />
+                            )}
+                            <span className="font-medium text-slate-800">{c.label}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
 
                     <TechDetails logs={logs} onDownloadJson={onDownloadJson} />
