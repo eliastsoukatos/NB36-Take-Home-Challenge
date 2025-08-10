@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NB36 • Credit Policy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-white text-slate-900">
+    <header class="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 md:px-6">
+        <a href="/" class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-700 hover:text-emerald-800">
+          <span class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-white">N</span>
+          NB36 Home
+        </a>
+        <div class="text-sm text-slate-500">Credit Policy</div>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-3xl px-4 py-10 md:px-6">
+      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Credit Policy</h1>
+      <p class="mt-3 text-slate-600">
+        This document outlines the core evaluation criteria used in the NB36 demo to assess applications. The policy is presented for demonstration purposes only and is not a binding agreement or a substitute for legal and compliance review.
+      </p>
+
+      <section class="mt-8">
+        <h2 class="text-xl font-semibold text-slate-900">1. AML (Anti‑Money Laundering)</h2>
+        <p class="mt-2 text-slate-700">
+          We perform AML screening to identify potential sanctions, PEP matches, or other compliance red flags. Outcomes are expressed as <span class="font-mono">PROCEED</span>, <span class="font-mono">REVIEW</span>, or <span class="font-mono">KO</span>.
+        </p>
+        <ul class="mt-2 list-disc pl-5 text-slate-700">
+          <li>Watchlist and sanctions checks (mocked)</li>
+          <li>Basic identity verification alignment (mocked)</li>
+        </ul>
+      </section>
+
+      <section class="mt-6">
+        <h2 class="text-xl font-semibold text-slate-900">2. Fraud</h2>
+        <p class="mt-2 text-slate-700">
+          We assess device, behavioral, and identity risk to detect potential fraud attempts. Outcomes are expressed as <span class="font-mono">FRAUD_PASS</span>, <span class="font-mono">REVIEW</span>, or <span class="font-mono">KO</span>.
+        </p>
+        <ul class="mt-2 list-disc pl-5 text-slate-700">
+          <li>Device fingerprint and velocity signals (mocked)</li>
+          <li>Behavioral and identity consistency checks (mocked)</li>
+        </ul>
+      </section>
+
+      <section class="mt-6">
+        <h2 class="text-xl font-semibold text-slate-900">3. Credit</h2>
+        <p class="mt-2 text-slate-700">
+          We incorporate bureau tiering and scorecard‑like indicators to estimate creditworthiness. Outcomes are expressed as <span class="font-mono">CREDIT_PASS</span>, <span class="font-mono">REVIEW</span>, or <span class="font-mono">KO</span>, with a <span class="font-mono">final_tier</span>.
+        </p>
+        <ul class="mt-2 list-disc pl-5 text-slate-700">
+          <li>Tier derivation and minimum thresholds (mocked)</li>
+          <li>Review/KO reasons for transparency (mocked)</li>
+        </ul>
+      </section>
+
+      <section class="mt-6">
+        <h2 class="text-xl font-semibold text-slate-900">4. Income</h2>
+        <p class="mt-2 text-slate-700">
+          We verify income via payroll/bank modes and assess coverage and stability. Outcomes are expressed as <span class="font-mono">INCOME_PASS</span>, <span class="font-mono">REVIEW</span>, or <span class="font-mono">KO</span>.
+        </p>
+        <ul class="mt-2 list-disc pl-5 text-slate-700">
+          <li>Coverage months and overage thresholds (mocked)</li>
+          <li>Source used (payroll/bank/document) (mocked)</li>
+        </ul>
+      </section>
+
+      <section class="mt-8">
+        <h2 class="text-xl font-semibold text-slate-900">Final Eligibility</h2>
+        <p class="mt-2 text-slate-700">
+          The policy composes these signals to derive an overall outcome. In this demo, the modal displays a per‑check breakdown with timing and a final request identifier. Technical details provide request/response JSON for reference.
+        </p>
+      </section>
+
+      <footer class="mt-10 border-t border-slate-200 pt-6 text-xs text-slate-500">
+        This page is part of the NB36 demo and is intended for demonstration only.
+      </footer>
+    </main>
+  </body>
+</html>

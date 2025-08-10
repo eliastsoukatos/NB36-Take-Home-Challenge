@@ -115,9 +115,9 @@ export default function NB36Landing() {
 function Header() {
   const navItems = [
     { label: "Diagram", href: "/diagram.html" },
-    { label: "Rewards", href: "#rewards" },
-    { label: "Security", href: "#security" },
-    { label: "FAQ", href: "#faq" },
+    { label: "Documentation", href: REPO_URL },
+    { label: "Credit Policy", href: "/credit-policy.html" },
+    { label: "Credit Limits", href: "#faq" },
   ];
   return (
     <header className="sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-white/60 bg-white/50">
@@ -376,18 +376,26 @@ function Security() {
         </div>
         <div className="order-1 md:order-2">
           <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-3 py-1 text-xs font-medium text-emerald-800">
-            <Shield className="h-3.5 w-3.5" /> Security
+            <Shield className="h-3.5 w-3.5" /> Credit Policy
           </div>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">Security first. Always.</h2>
+          <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">Credit Policy</h2>
           <p className="mt-3 text-slate-600">
-            From numberless cards and dynamic CVVs to biometric login and one‑tap freeze, NB36 protects your purchases—without slowing you down.
+            We evaluate each application using a transparent policy across key risk and affordability dimensions.
           </p>
           <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-            <li className="flex items-start gap-3"><CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600" /> Zero liability on unauthorized transactions</li>
-            <li className="flex items-start gap-3"><CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600" /> Encrypted by default, end‑to‑end</li>
-            <li className="flex items-start gap-3"><CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600" /> One‑tap card freeze in app</li>
-            <li className="flex items-start gap-3"><CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600" /> Purchase alerts in real time</li>
+            <li className="flex items-start gap-3"><CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600" /> AML — anti‑money laundering screening</li>
+            <li className="flex items-start gap-3"><CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600" /> Fraud — device, behavioral, and identity risk</li>
+            <li className="flex items-start gap-3"><CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600" /> Credit — bureau data and scorecard insights</li>
+            <li className="flex items-start gap-3"><CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-600" /> Income — verification coverage and stability</li>
           </ul>
+          <div className="mt-6">
+            <a
+              href="/credit-policy.html"
+              className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-emerald-700"
+            >
+              View Credit Policy
+            </a>
+          </div>
         </div>
       </div>
     </section>
@@ -449,28 +457,132 @@ function FAQ() {
   return (
     <section id="faq" className="mx-auto max-w-5xl px-4 py-16 md:px-6">
       <div className="mx-auto max-w-2xl text-center">
-        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Questions, answered</h2>
+        <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Credit Limits</h2>
+        <p className="mt-3 text-slate-600">
+          Tiers 0–7 with indicative limits and demo‑only criteria. Final tier reflects the minimum across AML, Fraud, Credit, and Income checks.
+        </p>
       </div>
       <div className="mt-8 divide-y divide-emerald-100 overflow-hidden rounded-2xl border border-emerald-100 bg-white">
-        {faqs.map(({ q, a }) => (
-          <details key={q} className="group">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 text-left text-sm font-medium text-slate-900 transition hover:bg-emerald-50/70">
-              <span>{q}</span>
-              <svg
-                className="h-5 w-5 text-emerald-600 transition group-open:rotate-45"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </summary>
-            <div className="px-6 pb-6 text-sm text-slate-600">{a}</div>
-          </details>
-        ))}
+        <details className="group">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 text-left text-sm font-medium text-slate-900 transition hover:bg-emerald-50/70">
+            <span>Tier 7 — $12,000 limit</span>
+            <svg className="h-5 w-5 text-emerald-600 transition group-open:rotate-45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+          </summary>
+          <div className="px-6 pb-6 text-sm text-slate-600">
+            <ul className="list-disc pl-5 space-y-1">
+              <li>AML: PROCEED</li>
+              <li>Fraud: PASS</li>
+              <li>Credit: bureau tier = 7</li>
+              <li>Income: coverage ≥ 12 months</li>
+            </ul>
+          </div>
+        </details>
+
+        <details className="group">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 text-left text-sm font-medium text-slate-900 transition hover:bg-emerald-50/70">
+            <span>Tier 6 — $7,500 limit</span>
+            <svg className="h-5 w-5 text-emerald-600 transition group-open:rotate-45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+          </summary>
+          <div className="px-6 pb-6 text-sm text-slate-600">
+            <ul className="list-disc pl-5 space-y-1">
+              <li>AML: PROCEED</li>
+              <li>Fraud: PASS</li>
+              <li>Credit: bureau tier ≥ 6</li>
+              <li>Income: coverage ≥ 6 months</li>
+            </ul>
+          </div>
+        </details>
+
+        <details className="group">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 text-left text-sm font-medium text-slate-900 transition hover:bg-emerald-50/70">
+            <span>Tier 5 — $4,000 limit</span>
+            <svg className="h-5 w-5 text-emerald-600 transition group-open:rotate-45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+          </summary>
+          <div className="px-6 pb-6 text-sm text-slate-600">
+            <ul className="list-disc pl-5 space-y-1">
+              <li>AML: PROCEED</li>
+              <li>Fraud: PASS</li>
+              <li>Credit: bureau tier ≥ 6 (or strong 5 with compensating factors)</li>
+              <li>Income: stable with coverage ≥ 6 months</li>
+            </ul>
+          </div>
+        </details>
+
+        <details className="group">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 text-left text-sm font-medium text-slate-900 transition hover:bg-emerald-50/70">
+            <span>Tier 4 — $2,000 limit</span>
+            <svg className="h-5 w-5 text-emerald-600 transition group-open:rotate-45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+          </summary>
+          <div className="px-6 pb-6 text-sm text-slate-600">
+            <ul className="list-disc pl-5 space-y-1">
+              <li>AML: PROCEED</li>
+              <li>Fraud: PASS</li>
+              <li>Credit: bureau tier ≥ 4</li>
+              <li>Income: coverage ≥ 3 months</li>
+            </ul>
+          </div>
+        </details>
+
+        <details className="group">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 text-left text-sm font-medium text-slate-900 transition hover:bg-emerald-50/70">
+            <span>Tier 3 — $1,000 limit</span>
+            <svg className="h-5 w-5 text-emerald-600 transition group-open:rotate-45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+          </summary>
+          <div className="px-6 pb-6 text-sm text-slate-600">
+            <ul className="list-disc pl-5 space-y-1">
+              <li>AML: PROCEED</li>
+              <li>Fraud: PASS</li>
+              <li>Credit: bureau tier ≥ 4 (or 3 with review)</li>
+              <li>Income: coverage ≥ 3 months</li>
+            </ul>
+          </div>
+        </details>
+
+        <details className="group">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 text-left text-sm font-medium text-slate-900 transition hover:bg-emerald-50/70">
+            <span>Tier 2 — $500 limit</span>
+            <svg className="h-5 w-5 text-emerald-600 transition group-open:rotate-45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+          </summary>
+          <div className="px-6 pb-6 text-sm text-slate-600">
+            <ul className="list-disc pl-5 space-y-1">
+              <li>AML: PROCEED</li>
+              <li>Fraud: PASS or REVIEW</li>
+              <li>Credit: bureau tier ≥ 3</li>
+              <li>Income: coverage ≥ 1–3 months</li>
+            </ul>
+          </div>
+        </details>
+
+        <details className="group">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 text-left text-sm font-medium text-slate-900 transition hover:bg-emerald-50/70">
+            <span>Tier 1 — $300 limit</span>
+            <svg className="h-5 w-5 text-emerald-600 transition group-open:rotate-45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+          </summary>
+          <div className="px-6 pb-6 text-sm text-slate-600">
+            <ul className="list-disc pl-5 space-y-1">
+              <li>AML: PROCEED</li>
+              <li>Fraud: PASS or REVIEW</li>
+              <li>Credit: bureau tier ≥ 3 (entry)</li>
+              <li>Income: minimal coverage or payroll source</li>
+            </ul>
+          </div>
+        </details>
+
+        <details className="group">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 text-left text-sm font-medium text-slate-900 transition hover:bg-emerald-50/70">
+            <span>Tier 0 — $0 (Declined)</span>
+            <svg className="h-5 w-5 text-emerald-600 transition group-open:rotate-45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+          </summary>
+          <div className="px-6 pb-6 text-sm text-slate-600">
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Any KO in AML, Fraud, Credit, or Income</li>
+              <li>Insufficient data to determine eligibility</li>
+            </ul>
+          </div>
+        </details>
       </div>
       <p className="mt-4 text-center text-xs text-slate-500">
-        Rates and rewards subject to change. Terms apply; see your cardmember agreement for details.
+        Limits and criteria are for demo only and not indicative of real underwriting.
       </p>
     </section>
   );
