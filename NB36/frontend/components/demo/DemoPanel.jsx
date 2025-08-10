@@ -12,7 +12,7 @@ import { telemetry } from "../../lib/telemetry.js";
  * }} props
  */
 export default function DemoPanel({ demoConfig, setDemoConfig }) {
-  const enabled = typeof import.meta !== "undefined" ? !import.meta.env.PROD : true;
+  const enabled = true; // Always show demo controls in this demo app
   const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
