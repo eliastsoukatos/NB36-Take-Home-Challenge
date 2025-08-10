@@ -89,7 +89,7 @@ def evaluate_income(
             "review_reasons": ["vendor_error"],
             "metrics": {},
             "income_tier": None,
-            "final_tier": credit_final_tier,
+            "final_tier": None,
             "has_pdf": False,
         }
 
@@ -176,16 +176,31 @@ def evaluate_income(
 
     # Compute tier and merge
     income_tier = _income_tier_from_net_monthly(net_monthly)
-    final_tier = min(int(credit_final_tier or 0), int(income_tier)) if credit_final_tier is not None else income_tier
 
+    # Decide pass/review
     decision = "INCOME_PASS" if not review_reasons else "INCOME_REVIEW"
+
+    # Enforce tier policy:
+    # - No final tier unless this stage passes AND a prior credit tier exists
+    # - No income tier exposed on review/decline paths
+    if decision == "INCOME_PASS":
+        income_tier_out = int(income_tier)
+        final_tier = min(int(credit_final_tier), int(income_tier)) if credit_final_tier is not None else None
+    else:
+        income_tier_out = None
+        final_tier = None
+
+    # Compute credit limit (8x monthly income) only on pass
+    credit_limit = round(net_monthly * 8, 2) if decision == "INCOME_PASS" else None
+
     return {
         "decision": decision,
         "source_used": source_used,
         "reasons": reasons,
         "review_reasons": review_reasons,
         "metrics": {"net_monthly": net_monthly, "coverage": coverage or ("N/A" if source_used == "payroll" else "EMPTY"), "coverage_months": coverage_months},
-        "income_tier": income_tier,
+        "income_tier": income_tier_out,
         "final_tier": final_tier,
+        "credit_limit": credit_limit,
         "has_pdf": False,
     }
