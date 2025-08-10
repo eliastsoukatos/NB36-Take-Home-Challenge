@@ -77,7 +77,7 @@ const faqs = [
 
 export default function NB36Landing() {
   return (
-    <div className="min-h-screen bg-white text-slate-900">
+    <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden">
       {/* Decorative background */}
       <div
         className="pointer-events-none absolute inset-0 -z-10"

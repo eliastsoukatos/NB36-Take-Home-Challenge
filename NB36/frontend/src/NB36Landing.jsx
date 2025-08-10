@@ -93,9 +93,9 @@ export default function NB36Landing() {
   });
 
   return (
-    <div className="min-h-screen bg-white text-slate-900">
+    <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden">
       {/* Decorative background */}
-      <div className="pointer-events-none absolute inset-0 -z-10" aria-hidden>
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden>
         <div className="absolute -top-1/3 left-1/2 h-[700px] w-[700px] -translate-x-1/2 rounded-full bg-emerald-400/20 blur-[120px]" />
         <div className="absolute bottom-[-200px] right-[-200px] h-[500px] w-[500px] rounded-full bg-emerald-200/30 blur-[100px]" />
       </div>
