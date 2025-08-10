@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import ApplyPageForm from "../components/form/ApplyPageForm.jsx";
 import DemoPanel from "../components/demo/DemoPanel.jsx";
+import WizardModal from "../components/wizard/WizardModal.jsx";
 
 // NB36 — Landing page with redesigned Apply flow (modal + balanced layout)
 // TailwindCSS + Framer Motion + Lucide icons
@@ -80,6 +81,10 @@ const faqs = [
 ];
 
 export default function NB36Landing() {
+  const [wizardOpen, setWizardOpen] = React.useState(false);
+  React.useEffect(() => {
+    setWizardOpen(true);
+  }, []);
   // Hidden-by-default demo controls; passed to ApplyPageForm
   const [demoConfig, setDemoConfig] = React.useState({
     scenario: "pass",
@@ -95,7 +100,7 @@ export default function NB36Landing() {
         <div className="absolute bottom-[-200px] right-[-200px] h-[500px] w-[500px] rounded-full bg-emerald-200/30 blur-[100px]" />
       </div>
 
-      <Header />
+      <Header onLaunchWizard={() => setWizardOpen(true)} />
       <Hero />
       <Highlights />
       <Features />
@@ -108,11 +113,12 @@ export default function NB36Landing() {
 
       {/* Hidden demo controls (gated in component) */}
       <DemoPanel demoConfig={demoConfig} setDemoConfig={setDemoConfig} />
+      <WizardModal open={wizardOpen} onClose={() => setWizardOpen(false)} />
     </div>
   );
 }
 
-function Header() {
+function Header({ onLaunchWizard }) {
   const navItems = [
     { label: "Diagram", href: "/diagram.html" },
     { label: "Documentation", href: REPO_URL },
@@ -139,7 +145,14 @@ function Header() {
             </a>
           ))}
         </nav>
-        <div className="hidden md:flex">
+        <div className="hidden md:flex items-center gap-3">
+          <button
+            type="button"
+            onClick={onLaunchWizard}
+            className="rounded-2xl border border-emerald-600 px-5 py-2.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-50"
+          >
+            Launch Wizard
+          </button>
           <a
             href="#apply"
             aria-label="Apply Now"
@@ -148,7 +161,14 @@ function Header() {
             Apply Now <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </a>
         </div>
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onLaunchWizard}
+            className="rounded-xl border border-emerald-600 px-3 py-2 text-sm font-semibold text-emerald-700"
+          >
+            Wizard
+          </button>
           <a
             href="#apply"
             aria-label="Open application form section"
