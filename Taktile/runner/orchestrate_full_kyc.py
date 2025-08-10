@@ -3,7 +3,8 @@ import sys
 import urllib.request
 import urllib.error
 
-TAKTILE_BASE_URL = "http://localhost:9100"
+TAKTILE_BASE_URL = "https://nb-taktile.onrender.com"
+#TAKTILE_BASE_URL = "http://localhost:9100"
 
 
 def example_intake(scenario: str | None = None) -> dict:

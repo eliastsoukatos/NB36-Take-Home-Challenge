@@ -508,7 +508,8 @@ function ApplyForm() {
     setResult(null);
     try {
       const payload = buildPayload();
-      const resp = await fetch("http://localhost:9000/apply/aml-first", {
+      //const resp = await fetch("http://localhost:9000/apply/aml-first", {
+      const resp = await fetch("https://nb-backend-fv6v.onrender.com/apply/aml-first", {  
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
