@@ -12,37 +12,7 @@ from Taktile.stages.T3 import evaluate_credit_policy
 from Taktile.stages.T4 import evaluate_income
 
 
-app = FastAPI(title="Taktile Orchestrator (T*)", version="1.0.0")
-
-
-class AmlFirstIn(BaseModel):
-    case_id: str
-    intake: Dict[str, Any] = Field(default_factory=dict)
-
-
-@app.post("/workflows/kyc/aml-first")
-def aml_first(input: AmlFirstIn):
-    """
-    Orchestrates AML-first flow:
-      - S1: Build payload and call SEON AML (no decision)
-      - T1: Apply KO logic to AML response
-    Returns both the decision and raw AML JSON for transparency.
-    """
-    try:
-        t1 = run_aml(case_id=input.case_id, intake=input.intake)
-        aml_raw = t1.get("aml_raw")
-        decision = evaluate_aml(aml_raw)
-    except Exception as e:
-        # Bubble up a clear error to the backend; it's expected to handle technical failure
-        raise HTTPException(status_code=502, detail=f"AML orchestration error: {e}")
-
-    return {
-        "case_id": input.case_id,
-        "decision": decision.get("decision"),
-        "reasons": decision.get("reasons", []),
-        "details": decision.get("details", {}),
-        "aml_raw": aml_raw,
-    }
+app = FastAPI(title="Taktile Orchestrator (S*/T*)", version="1.0.0")
 
 
 class FullKycIn(BaseModel):
@@ -104,7 +74,7 @@ def kyc_full(input: FullKycIn):
             "fraud_raw": fraud_raw,
         }
 
-    # Credit stage (S3 -> T5), only when Fraud PASS
+    # Credit stage (S3 -> T3), only when Fraud PASS
     try:
         envelope = get_credit_report(input.intake)
         credit_raw = envelope.get("data") or {}

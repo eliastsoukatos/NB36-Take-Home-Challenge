@@ -29,35 +29,9 @@ def post_json(url: str, payload: Dict[str, Any], timeout: float = 10.0) -> tuple
         return 0, f"Request error: {e}"
 
 
-def example_intake_aml(scenario: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Build an example intake payload for AML-first (minimal fields; mirrors old orchestrate_aml).
-    Known SEON scenarios: pass, review, ko_fraud, ko_compliance
-    """
-    intake = {
-        "user_fullname": "Bob Jones",
-        "user_dob": "1990-05-05",
-        "user_country": "US",
-        "ssn": "111-22-3333",
-        "gov_id_type": "DL",
-        "gov_id_number": "X999000",
-        "address_line1": "55 Broadway",
-        "address_city": "NYC",
-        "address_state": "NY",
-        "address_zip": "10006",
-        "email": "bob@sanction.com",
-        "phone_number": "+12125551234",
-        "custom_fields": {},
-    }
-    if scenario:
-        intake["custom_fields"]["scenario"] = scenario
-    return intake
-
-
 def example_intake_full(scenario: Optional[str] = None, income_opts: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
     Build an example intake payload for Full KYC (AML + Fraud + Credit + Income).
-    Mirrors old orchestrate_full_kyc.
     """
     intake = {
         "user_fullname": "Alice Smith",
@@ -93,16 +67,6 @@ def example_intake_full(scenario: Optional[str] = None, income_opts: Optional[Di
     return intake
 
 
-def run_aml_first(base: str, case_id: str, scenario: Optional[str], pretty: bool) -> None:
-    intake = example_intake_aml(scenario=scenario)
-    status, resp = post_json(
-        f"{base}/workflows/kyc/aml-first",
-        {"case_id": case_id, "intake": intake},
-    )
-    out = {"mode": "aml-first", "http_status": status, "response": resp}
-    print(json.dumps(out, indent=2 if pretty else None))
-
-
 def run_full(base: str, case_id: str, scenario: Optional[str], income_opts: Optional[Dict[str, Any]], pretty: bool) -> None:
     intake = example_intake_full(scenario=scenario, income_opts=income_opts)
     status, resp = post_json(
@@ -116,7 +80,6 @@ def run_full(base: str, case_id: str, scenario: Optional[str], income_opts: Opti
 def run_suite(base: str, pretty: bool) -> None:
     scenarios = ["pass", "review", "ko_fraud", "ko_compliance"]
     for sc in scenarios:
-        run_aml_first(base, f"suite-aml-{sc}", sc, pretty)
         run_full(base, f"suite-full-{sc}", sc, {}, pretty)
 
     # Income variations
@@ -126,14 +89,8 @@ def run_suite(base: str, pretty: bool) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(prog="orchestrate", description="Run AML-first or Full KYC scenarios against the Taktile service")
+    parser = argparse.ArgumentParser(prog="orchestrate", description="Run Full KYC scenarios against the Taktile service")
     sub = parser.add_subparsers(dest="cmd", required=True)
-
-    p_aml = sub.add_parser("aml-first", help="Run AML-first flow (SEON AML + AML evaluator)")
-    p_aml.add_argument("--base", default=DEFAULT_BASE, help="Taktile base URL")
-    p_aml.add_argument("--case-id", default="demo-aml-001", help="Case ID to use")
-    p_aml.add_argument("--scenario", default="pass", help="SEON scenario: pass|review|ko_fraud|ko_compliance")
-    p_aml.add_argument("--pretty", action="store_true", help="Pretty-print JSON output")
 
     p_full = sub.add_parser("full", help="Run full KYC flow (AML → Fraud → Credit → Income)")
     p_full.add_argument("--base", default=DEFAULT_BASE, help="Taktile base URL")
@@ -145,15 +102,13 @@ def main() -> None:
     p_full.add_argument("--coverage-months", type=int, default=12, help="Requested coverage months (bank fallback rule)")
     p_full.add_argument("--pretty", action="store_true", help="Pretty-print JSON output")
 
-    p_suite = sub.add_parser("suite", help="Run a suite of scenarios across AML-first and Full flows")
+    p_suite = sub.add_parser("suite", help="Run a suite of scenarios across Full flow")
     p_suite.add_argument("--base", default=DEFAULT_BASE, help="Taktile base URL")
     p_suite.add_argument("--pretty", action="store_true", help="Pretty-print JSON output")
 
     args = parser.parse_args()
 
-    if args.cmd == "aml-first":
-        run_aml_first(args.base, args.case_id, args.scenario, args.pretty)
-    elif args.cmd == "full":
+    if args.cmd == "full":
         opts: Dict[str, Any] = {}
         if args.income_force_mode and args.income_force_mode != "none":
             opts["income_force_mode"] = args.income_force_mode
