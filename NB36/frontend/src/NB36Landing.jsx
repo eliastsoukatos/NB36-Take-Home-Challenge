@@ -55,7 +55,7 @@ const features = [
   },
 ];
 
-const REPO_URL = "https://github.com/your-repo"; // TODO: replace with your real GitHub repo URL
+const REPO_URL = "https://github.com/eliastsoukatos/NB36-Take-Home-Challenge"; // TODO: replace with your real GitHub repo URL
 
 const faqs = [
   {
