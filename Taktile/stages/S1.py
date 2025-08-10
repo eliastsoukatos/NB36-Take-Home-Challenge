@@ -1,0 +1,47 @@
+from typing import Any, Dict
+
+from Taktile.clients.seon import SeonClient
+
+
+seon = SeonClient()
+
+
+def build_aml_payload(intake: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Build the minimal AML payload expected by the SEON mock from the applicant intake.
+    """
+    payload: Dict[str, Any] = {
+        "user_fullname": intake.get("user_fullname"),
+        "user_dob": intake.get("user_dob"),
+        "user_country": intake.get("user_country"),
+        "email": intake.get("email"),
+        "config": {
+            "monitoring_required": False,
+            "sources": {
+                "sanction_enabled": True,
+                "pep_enabled": True,
+                "watchlist_enabled": True,
+                "crimelist_enabled": True,
+                "adversemedia_enabled": True,
+            },
+        },
+        "custom_fields": intake.get("custom_fields") or {},
+    }
+    return payload
+
+
+def run_aml(case_id: str, intake: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    S1: Build AML payload and call SEON AML API (no decision here).
+    Returns:
+      {
+        "case_id": str,
+        "aml_raw": dict
+      }
+    """
+    aml_payload = build_aml_payload(intake)
+    aml_response = seon.aml_screen(aml_payload)
+    return {
+        "case_id": case_id,
+        "aml_raw": aml_response,
+    }

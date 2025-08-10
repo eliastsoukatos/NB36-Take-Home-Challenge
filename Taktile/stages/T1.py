@@ -1,83 +1,57 @@
-from typing import Any, Dict
-
-from Taktile.clients.seon import SeonClient
+from typing import Any, Dict, List
 
 
-seon = SeonClient()
+class ComplianceDecision:
+    DECLINE = "DECLINE"
+    PROCEED = "PROCEED"
 
 
-def build_aml_payload(intake: Dict[str, Any]) -> Dict[str, Any]:
+def evaluate_aml(aml_response: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Build the minimal AML payload expected by the SEON mock from the applicant intake.
-    """
-    payload: Dict[str, Any] = {
-        "user_fullname": intake.get("user_fullname"),
-        "user_dob": intake.get("user_dob"),
-        "user_country": intake.get("user_country"),
-        "email": intake.get("email"),
-        "config": {
-            "monitoring_required": False,
-            "sources": {
-                "sanction_enabled": True,
-                "pep_enabled": True,
-                "watchlist_enabled": True,
-                "crimelist_enabled": True,
-                "adversemedia_enabled": True,
-            },
-        },
-        "custom_fields": intake.get("custom_fields") or {},
-    }
-    return payload
+    Evaluate AML response (from SEON mock) and return a decision dict.
 
+    Expected aml_response shape:
+      {
+        "success": bool,
+        "error": {...} | {},
+        "data": {
+          "has_watchlist_match": bool,
+          "has_sanction_match": bool,
+          "has_crimelist_match": bool,
+          "has_pep_match": bool,
+          "has_adversemedia_match": bool,
+          "result_payload": {...}
+        }
+      }
+    """
+    if not aml_response or not aml_response.get("success"):
+        return {
+            "decision": ComplianceDecision.DECLINE,
+            "reasons": ["technical_error_or_timeout"],
+            "details": aml_response.get("error") if isinstance(aml_response, dict) else {},
+        }
 
-def run_aml_first(case_id: str, intake: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    T1: Start KYC workflow (AML-first).
-    - Build AML payload from intake
-    - Call SEON AML API (no decision here)
-    - Return raw AML response
-    """
-    aml_payload = build_aml_payload(intake)
-    aml_response = seon.aml_screen(aml_payload)
+    data = aml_response.get("data") or {}
+    reasons: List[str] = []
+
+    if data.get("has_sanction_match"):
+        reasons.append("sanctions_match")
+    if data.get("has_pep_match"):
+        reasons.append("pep_match")
+    if data.get("has_crimelist_match"):
+        reasons.append("crimelist_match")
+    if data.get("has_adversemedia_match"):
+        reasons.append("adverse_media_signal")
+
+    if any(r in reasons for r in ("sanctions_match", "pep_match", "crimelist_match")):
+        return {
+            "decision": ComplianceDecision.DECLINE,
+            "reasons": reasons,
+            "details": {"source": "aml_screening"},
+        }
+
     return {
-        "case_id": case_id,
-        "aml_raw": aml_response,
-    }
-
-
-def build_fraud_payload(intake: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Build a fraud payload for the SEON mock from the applicant intake.
-    """
-    payload: Dict[str, Any] = {
-        "config": {
-            "ip_api": True,
-            "email_api": True,
-            "phone_api": True,
-            "device_fingerprinting": True,
-            "email": {"version": "v3"},
-            "phone": {"version": "v2"},
-            "ip": {"include": "flags,history,id", "version": "v1"},
-        },
-        "ip": intake.get("ip"),
-        "email": intake.get("email"),
-        "phone_number": intake.get("phone_number"),
-        "user_fullname": intake.get("user_fullname"),
-        "user_dob": intake.get("user_dob"),
-        "user_country": intake.get("user_country"),
-        "session": intake.get("session") or "mock-session",
-        "custom_fields": intake.get("custom_fields") or {},
-    }
-    return payload
-
-
-def run_fraud(case_id: str, intake: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Build payload and call SEON Fraud API, returning the raw response.
-    """
-    fraud_payload = build_fraud_payload(intake)
-    fraud_response = seon.fraud_check(fraud_payload)
-    return {
-        "case_id": case_id,
-        "fraud_raw": fraud_response,
+        "decision": ComplianceDecision.PROCEED,
+        "reasons": reasons,
+        "details": {"source": "aml_screening"},
     }

@@ -1,131 +1,208 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, Optional, Tuple
 
 
-def _has_severe_flags(data: Dict[str, Any]) -> List[str]:
-    reasons: List[str] = []
-
-    # Device details
-    dd = (data.get("device_details") or {}) if isinstance(data.get("device_details"), dict) else {}
-    if dd.get("vpn"):
-        reasons.append("device_vpn")
-    if dd.get("proxy"):
-        reasons.append("device_proxy")
-    # Heuristic: emulator/bot flags often captured as suspicious_flags list
-    for flag in dd.get("suspicious_flags", []) or []:
-        f = str(flag).lower()
-        if any(k in f for k in ["emulator", "bot", "automation"]):
-            reasons.append("device_emulator_or_bot")
-            break
-
-    # IP details
-    ipd = (data.get("ip_details") or {}) if isinstance(data.get("ip_details"), dict) else {}
-    ip_type = (ipd.get("ip_type") or "").upper()
-    if ip_type == "DCH":
-        reasons.append("ip_datacenter")
-    if ipd.get("proxy"):
-        reasons.append("ip_proxy")
-    if ipd.get("vpn"):
-        reasons.append("ip_vpn")
-    if ipd.get("tor"):
-        reasons.append("ip_tor")
-
-    # Basic presence checks
-    # If session/device missing entirely, mark as weaker signal for review bucket
-    if not dd:
-        reasons.append("missing_device")
-    # Additional blocks could be scanned similarly (email_details/phone_details)
-
-    return reasons
+def _cadence_factor(cadence: Optional[str]) -> float:
+    c = (cadence or "").upper()
+    if c == "WEEKLY":
+        return 4.33
+    if c == "BIWEEKLY":
+        return 2.17  # ~26 / 12
+    if c == "SEMIMONTHLY":
+        return 2.0
+    if c == "MONTHLY":
+        return 1.0
+    return 1.0
 
 
-def _tier_from_score(score: float | int) -> int:
-    # Lower fraud score => higher tier (7 best ... 0 base)
-    try:
-        s = float(score)
-    except Exception:
-        s = 0.0
-    if s <= 30:
+def _net_monthly_from_payroll(payroll_income: Optional[Dict[str, Any]]) -> Optional[float]:
+    if not payroll_income:
+        return None
+    streams = payroll_income.get("streams") or []
+    if not streams:
+        return None
+    s0 = streams[0] or {}
+    net = float(s0.get("net") or 0.0)
+    cadence = s0.get("cadence") or payroll_income.get("pay_frequency")
+    return round(net * _cadence_factor(cadence), 2)
+
+
+def _net_monthly_from_bank(bank_income: Optional[Dict[str, Any]]) -> Optional[float]:
+    if not bank_income:
+        return None
+    streams = bank_income.get("streams") or []
+    if not streams:
+        return None
+    s0 = streams[0] or {}
+    # In our mock, average_net is monthly already; if it were per deposit we'd multiply by cadence factor
+    avg_net = float(s0.get("average_net") or 0.0)
+    return round(avg_net, 2)
+
+
+def _income_tier_from_net_monthly(net_monthly: float) -> int:
+    # 7: ≥5000, 6: 3500–4999, 5: 2500–3499, 4: 1800–2499, 3: 1400–1799, 2: 1000–1399, 1: 800–999, 0: <800
+    nm = float(net_monthly)
+    if nm >= 5000:
         return 7
-    if s <= 40:
+    if nm >= 3500:
         return 6
-    if s <= 50:
+    if nm >= 2500:
         return 5
-    if s <= 60:
+    if nm >= 1800:
         return 4
-    if s <= 70:
+    if nm >= 1400:
         return 3
-    if s <= 80:
+    if nm >= 1000:
         return 2
-    if s <= 90:
+    if nm >= 800:
         return 1
     return 0
 
 
-def evaluate_fraud(fraud_response: Dict[str, Any]) -> Dict[str, Any]:
+def _has_plaid_error(resp: Optional[Dict[str, Any]]) -> bool:
+    if not isinstance(resp, dict):
+        return False
+    return bool(resp.get("error_type") or resp.get("error_code"))
+
+
+def evaluate_income(
+    payroll_resp: Optional[Dict[str, Any]],
+    bank_resp: Optional[Dict[str, Any]],
+    risk_resp: Optional[Dict[str, Any]],
+    coverage_months: int,
+    credit_final_tier: Optional[int],
+) -> Dict[str, Any]:
     """
-    Input: SEON Fraud API JSON (mock).
-    Output:
-      {
-        "decision": "FRAUD_DECLINE" | "FRAUD_REVIEW" | "FRAUD_PASS",
-        "provisional_tier": int | None,
-        "reasons": [str, ...],
-        "details": {"fraud_score": float, ...}
-      }
-    Logic (placeholder thresholds; tune later):
-      - DECLINE if fraud_score >= 90 OR severe combo (vpn/proxy + datacenter IP + emulator/bot flags).
-      - REVIEW if 70 <= fraud_score < 90 OR single severe red flag OR missing device/session.
-      - PASS otherwise.
-    Tier mapping (if PASS):
-      - <=30: 7
-      - <=40: 6
-      - <=50: 5
-      - <=60: 4
-      - <=70: 3
-      - <=80: 2
-      - <=90: 1
-      - else: 0
+    T4: Income evaluation (Plaid payroll/bank + risk signals).
+
+    Apply KO/Review/Pass rules:
+
+    Inputs: raw Plaid mock JSONs for payroll, bank, and risk signals (may be None), coverage_months requested,
+    and the final tier after credit (to merge conservatively on pass).
     """
-    if not isinstance(fraud_response, dict) or not fraud_response.get("success"):
+    reasons: list[str] = []
+    review_reasons: list[str] = []
+
+    # Detect vendor-style errors → Review
+    if _has_plaid_error(payroll_resp) or _has_plaid_error(bank_resp) or _has_plaid_error(risk_resp):
         return {
-            "decision": "FRAUD_REVIEW",
-            "provisional_tier": None,
-            "reasons": ["vendor_error_or_timeout"],
-            "details": {"fraud_score": None},
+            "decision": "INCOME_REVIEW",
+            "source_used": "unknown",
+            "reasons": [],
+            "review_reasons": ["vendor_error"],
+            "metrics": {},
+            "income_tier": None,
+            "final_tier": None,
+            "has_pdf": False,
         }
 
-    data = fraud_response.get("data") or {}
-    fraud_score = data.get("fraud_score", 0)
-    reasons = _has_severe_flags(data)
+    payroll_income = (payroll_resp or {}).get("payroll_income") if isinstance(payroll_resp, dict) else None
+    bank_income = (bank_resp or {}).get("bank_income") if isinstance(bank_resp, dict) else None
 
-    # Decline if very high or multiple severe red flags
-    try:
-        score_val = float(fraud_score)
-    except Exception:
-        score_val = 0.0
+    risk_signals = []
+    if isinstance(risk_resp, dict):
+        risk_signals = risk_resp.get("signals") or []
+    is_suspicious = any((s.get("code") or "").upper() != "NO_FINDINGS" and (s.get("severity") or "LOW") in ("MEDIUM", "HIGH") for s in risk_signals)
 
-    if score_val >= 90 or len(reasons) >= 3:
+    # Choose source
+    source_used = "empty"
+    net_monthly: Optional[float] = None
+    coverage = None
+
+    if payroll_income:
+        source_used = "payroll"
+        net_monthly = _net_monthly_from_payroll(payroll_income)
+    elif bank_income:
+        source_used = "bank"
+        net_monthly = _net_monthly_from_bank(bank_income)
+        coverage = bank_income.get("coverage")
+
+    # KO rules
+    # 1) No income at all
+    if not net_monthly or net_monthly <= 0:
         return {
-            "decision": "FRAUD_DECLINE",
-            "provisional_tier": None,
-            "reasons": reasons or ["high_risk_score"],
-            "details": {"fraud_score": score_val},
+            "decision": "INCOME_DECLINE",
+            "source_used": source_used,
+            "reasons": ["NO_INCOME"],
+            "review_reasons": [],
+            "metrics": {"net_monthly": net_monthly or 0.0, "coverage": coverage or "EMPTY", "coverage_months": coverage_months},
+            "income_tier": None,
+            "final_tier": None,
+            "has_pdf": False,
         }
 
-    # Review if medium-high or at least one severe flag or missing device/session
-    # Note: "missing_device" is included by _has_severe_flags as a reason when device_details absent.
-    if 70 <= score_val < 90 or any(reasons):
+    # 2) Net monthly too low (< 1000)
+    if net_monthly < 1000:
         return {
-            "decision": "FRAUD_REVIEW",
-            "provisional_tier": None,
-            "reasons": reasons or ["medium_high_risk_score"],
-            "details": {"fraud_score": score_val},
+            "decision": "INCOME_DECLINE",
+            "source_used": source_used,
+            "reasons": ["NET_MONTHLY_LT_1000"],
+            "review_reasons": [],
+            "metrics": {"net_monthly": net_monthly, "coverage": coverage or "N/A", "coverage_months": coverage_months},
+            "income_tier": None,
+            "final_tier": None,
+            "has_pdf": False,
         }
 
-    # Pass otherwise
-    tier = _tier_from_score(score_val)
+    # 3) Suspicious + net monthly < 1500
+    if is_suspicious and net_monthly < 1500:
+        return {
+            "decision": "INCOME_DECLINE",
+            "source_used": source_used,
+            "reasons": ["SUSPICIOUS_AND_LOW_INCOME"],
+            "review_reasons": [],
+            "metrics": {"net_monthly": net_monthly, "coverage": coverage or "N/A", "coverage_months": coverage_months},
+            "income_tier": None,
+            "final_tier": None,
+            "has_pdf": False,
+        }
+
+    # 4) Bank fallback coverage thin
+    if source_used == "bank":
+        cov = (coverage or "").upper()
+        if (cov != "FULL") and (coverage_months < 3):
+            return {
+                "decision": "INCOME_DECLINE",
+                "source_used": source_used,
+                "reasons": ["INSUFFICIENT_COVERAGE"],
+                "review_reasons": [],
+                "metrics": {"net_monthly": net_monthly, "coverage": coverage or "EMPTY", "coverage_months": coverage_months},
+                "income_tier": None,
+                "final_tier": None,
+                "has_pdf": False,
+            }
+
+    # Review triggers (non-KO)
+    if is_suspicious and net_monthly >= 1500:
+        review_reasons.append("SUSPICIOUS_SIGNALS")
+    # Additional review hooks could include PDF fetch failure or employment mismatch.
+
+    # Compute tier and merge
+    income_tier = _income_tier_from_net_monthly(net_monthly)
+
+    # Decide pass/review
+    decision = "INCOME_PASS" if not review_reasons else "INCOME_REVIEW"
+
+    # Enforce tier policy:
+    # - No final tier unless this stage passes AND a prior credit tier exists
+    # - No income tier exposed on review/decline paths
+    if decision == "INCOME_PASS":
+        income_tier_out = int(income_tier)
+        final_tier = min(int(credit_final_tier), int(income_tier)) if credit_final_tier is not None else None
+    else:
+        income_tier_out = None
+        final_tier = None
+
+    # Compute credit limit (8x monthly income) only on pass
+    credit_limit = round(net_monthly * 8, 2) if decision == "INCOME_PASS" else None
+
     return {
-        "decision": "FRAUD_PASS",
-        "provisional_tier": tier,
-        "reasons": reasons,  # usually empty here, but include if any contextual notes exist
-        "details": {"fraud_score": score_val},
+        "decision": decision,
+        "source_used": source_used,
+        "reasons": reasons,
+        "review_reasons": review_reasons,
+        "metrics": {"net_monthly": net_monthly, "coverage": coverage or ("N/A" if source_used == "payroll" else "EMPTY"), "coverage_months": coverage_months},
+        "income_tier": income_tier_out,
+        "final_tier": final_tier,
+        "credit_limit": credit_limit,
+        "has_pdf": False,
     }
