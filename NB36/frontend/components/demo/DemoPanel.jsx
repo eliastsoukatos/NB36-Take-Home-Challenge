@@ -12,11 +12,9 @@ import { telemetry } from "../../lib/telemetry.js";
  * }} props
  */
 export default function DemoPanel({ demoConfig, setDemoConfig }) {
-  const enabled = true; // Always show demo controls in this demo app
   const [open, setOpen] = React.useState(false);
 
   React.useEffect(() => {
-    if (!enabled) return;
     function onKey(e) {
       const isMac = navigator.platform.toUpperCase().includes("MAC");
       if ((isMac && e.metaKey && e.key.toLowerCase() === "d") || (!isMac && e.ctrlKey && e.key.toLowerCase() === "d")) {
@@ -30,9 +28,8 @@ export default function DemoPanel({ demoConfig, setDemoConfig }) {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [enabled]);
+  }, []);
 
-  if (!enabled) return null;
 
   function update(partial) {
     setDemoConfig({ ...demoConfig, ...partial });
@@ -118,7 +115,7 @@ export default function DemoPanel({ demoConfig, setDemoConfig }) {
             </div>
 
             <p className="text-[11px] text-slate-500">
-              These controls affect custom_fields in the request body and drive mocked outcomes. Hidden in production builds.
+              These controls affect custom_fields in the request body and drive mocked outcomes. Available in this public demo.
             </p>
           </div>
         </div>
