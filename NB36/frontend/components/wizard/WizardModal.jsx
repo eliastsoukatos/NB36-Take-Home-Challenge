@@ -63,7 +63,7 @@ const steps = [
     image: { src: "/images/cc_back.png", alt: "NB36 card back" },
     body: (
       <p className="text-slate-600">
-        You can close or skip anytime. Use the "Launch Wizard" button in the header to view this tour again.
+        You can close anytime. Use the "Launch Wizard" button in the header to view this tour again.
       </p>
     ),
   },
@@ -82,7 +82,6 @@ export default function WizardModal({ open, onClose }) {
 
   const next = () => setStep((s) => Math.min(s + 1, steps.length - 1));
   const prev = () => setStep((s) => Math.max(s - 1, 0));
-  const skip = () => onClose?.();
   const done = () => onClose?.();
 
   const progressPct = ((step + 1) / steps.length) * 100;
@@ -111,13 +110,6 @@ export default function WizardModal({ open, onClose }) {
                     </h3>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={skip}
-                      className="rounded-md px-2 py-1 text-sm text-slate-600 hover:bg-slate-100"
-                    >
-                      Skip
-                    </button>
                     <button
                       type="button"
                       onClick={onClose}
@@ -216,13 +208,6 @@ export default function WizardModal({ open, onClose }) {
                       Done
                     </button>
                   )}
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-                  >
-                    Close
-                  </button>
                 </div>
               </div>
             </div>
