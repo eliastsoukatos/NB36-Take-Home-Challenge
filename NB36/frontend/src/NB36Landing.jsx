@@ -123,7 +123,7 @@ function Header({ onLaunchWizard }) {
     { label: "Diagram", href: "/diagram.html" },
     { label: "Documentation", href: REPO_URL },
     { label: "Credit Policy", href: "/credit-policy.html" },
-    { label: "Credit Limits", href: "#faq" },
+    { label: "Credit Limits", href: "#creditlimit" },
   ];
   return (
     <header className="sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-white/60 bg-white/50">
@@ -475,7 +475,7 @@ function TestimonialCard({ quote, name, role }) {
 
 function FAQ() {
   return (
-    <section id="faq" className="mx-auto max-w-5xl px-4 py-16 md:px-6">
+    <section id="creditlimit" className="mx-auto max-w-5xl px-4 py-16 md:px-6">
       <div className="mx-auto max-w-2xl text-center">
         <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Credit Limits</h2>
         <p className="mt-3 text-slate-600">
