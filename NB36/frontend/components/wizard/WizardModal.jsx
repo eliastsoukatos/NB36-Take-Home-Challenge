@@ -6,65 +6,84 @@ import { ArrowLeft, ArrowRight, X } from "lucide-react";
 // Define 6 steps with image + text content
 const steps = [
   {
-    title: "Welcome to the NB36 Demo",
-    image: { src: "/images/cc_front.png", alt: "NB36 card front" },
+    title: "Welcome",
+    image: { src: "/images/elias.png", alt: "NB36 card front" },
     body: (
       <>
         <p className="text-slate-600">
-          This short tour walks through the key parts of the NB36 credit card demo experience.
+          Hi! My name is Elias Tsouaktos, and I’m truly excited about the opportunity to work at Taktile.
+        </p>
+        <p className="mt-3 text-slate-600">
+          I have to admit — I had a lot of fun building this take-home challenge. If this is the kind of work I’d be doing at Taktile, I think I could do really well and contribute meaningfully. This project has only reinforced my belief that this would be a fantastic opportunity for me.
+        </p>
+      </>
+    ),
+  },
+  {
+    title: "APIs & Mock Setup",
+    image: { src: "/images/github.png", alt: "NB36 card back" },
+    body: (
+      <>
+        <p className="text-slate-600">
+          To complete this challenge, I needed to connect to several APIs mentioned in the documentation. Since those APIs were not publicly accessible, I created four mock APIs to simulate the interactions. These mocks are based on the official documentation I found online and are designed to behave very similarly to the real ones.
+        </p>
+        <p className="mt-3 text-slate-600">
+          The APIs I mocked were SEON, Experian, and Plaid. I also built a Taktile agent that calls them all, simulating Taktile’s role. The application, built with Next.js + Tailwind on the frontend and Python on the backend, connects to the mock Taktile API, which in turn interacts with the other mock APIs. The entire project is open-source on GitHub, so you can explore the full code anytime.
+        </p>
+      </>
+    ),
+  },
+  {
+    title: "Architecture Diagram",
+    image: { src: "/images/diagram.png", alt: "NB36 card front" },
+    body: (
+      <>
+        <p className="text-slate-600">
+          To make the process clearer, I created a diagram showing the full architecture. It looks simple, but it works smoothly.
         </p>
         <ul className="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-1">
-          <li>What’s on this page</li>
-          <li>How to apply</li>
-          <li>How decisions are made</li>
-          <li>How to relaunch this tour</li>
+          <li>Read the detailed README files on GitHub</li>
+          <li>Explore the code directly</li>
+          <li>Run the project yourself</li>
+          <li>Or, of course, you can just ask me — I’m happy to walk you through it.</li>
         </ul>
       </>
     ),
   },
   {
-    title: "Explore the Landing Page",
-    image: { src: "/images/cc_back.png", alt: "NB36 card back" },
+    title: "KO Criteria & Credit Policy",
+    image: { src: "/images/credit_policy.png", alt: "NB36 card back" },
     body: (
       <p className="text-slate-600">
-        The hero and highlights introduce the card benefits. Scroll to see features, design details, and security.
+        For this challenge, I designed the Knock-Out (KO) criteria and the credit policy. I studied the API documentation from each provider in the test and developed a tier system for credit approvals. Your assigned tier determines the maximum credit you can access — regardless of your income.
       </p>
     ),
   },
   {
-    title: "Credit Policy and Limits",
-    image: { src: "/images/cc_front.png", alt: "NB36 card front" },
+    title: "Credit Limits & Criteria",
+    image: { src: "/images/credit_limits.png", alt: "NB36 card front" },
     body: (
       <p className="text-slate-600">
-        The Credit Limits section outlines tiers and indicative limits. These are demo-only and not real underwriting.
+        You can review the credit limits and the criteria I implemented to assign them. This is explained briefly on the landing page, and in more detail on the Credit Policy page of the application.
       </p>
     ),
   },
   {
-    title: "Apply Flow Overview",
-    image: { src: "/images/cc_back.png", alt: "NB36 card back" },
+    title: "Testing the Application",
+    image: { src: "/images/kyi_check.png", alt: "NB36 card back" },
     body: (
-      <p className="text-slate-600">
-        Use the Apply section to submit a demo application. A modal runs checks and shows an eligibility report.
-      </p>
-    ),
-  },
-  {
-    title: "Mock APIs Powering the Demo",
-    image: { src: "/images/cc_front.png", alt: "NB36 card front" },
-    body: (
-      <p className="text-slate-600">
-        SEON, Experian, Plain, and Taktile mocks simulate AML, Fraud, Credit, and Income checks end-to-end.
-      </p>
-    ),
-  },
-  {
-    title: "Tips & Relaunch",
-    image: { src: "/images/cc_back.png", alt: "NB36 card back" },
-    body: (
-      <p className="text-slate-600">
-        You can close anytime. Use the "Launch Wizard" button in the header to view this tour again.
-      </p>
+      <>
+        <p className="text-slate-600">
+          To test the application, simply submit a credit application and wait for the automated analysis. You’ll be able to:
+        </p>
+        <ul className="mt-3 list-disc pl-5 text-sm text-slate-600 space-y-1">
+          <li>Read the JSON report returned by the backend to verify that the logic matches the architecture diagram</li>
+          <li>Use the demo tool (bottom-right corner) to experiment with different credit scenarios</li>
+        </ul>
+        <p className="mt-3 text-slate-600">
+          The tool will evaluate your application, assign you a Tier level, and set a credit limit based on the criteria.
+        </p>
+      </>
     ),
   },
 ];
@@ -79,6 +98,7 @@ export default function WizardModal({ open, onClose }) {
   const isFirst = step === 0;
   const isLast = step === steps.length - 1;
   const isOdd = step % 2 === 1;
+  const leftBias = new Set([1, 3, 4, 5]); // steps 2, 4, 5, 6
 
   const next = () => setStep((s) => Math.min(s + 1, steps.length - 1));
   const prev = () => setStep((s) => Math.max(s - 1, 0));
@@ -153,11 +173,11 @@ export default function WizardModal({ open, onClose }) {
                     <div className="grid items-center gap-6 md:grid-cols-2">
                       {/* Image column */}
                       <div className={(isOdd ? "md:order-2" : "md:order-1") + " order-1"}>
-                        <div className="relative mx-auto w-full overflow-hidden rounded-xl border border-slate-200 bg-white">
+                        <div className="relative mx-auto w-full aspect-square overflow-hidden rounded-xl border border-slate-200 bg-white">
                           <img
                             src={steps[step].image.src}
                             alt={steps[step].image.alt}
-                            className="w-full h-56 md:h-80 object-contain p-4"
+                            className={"w-full h-full object-cover " + (leftBias.has(step) ? "object-left" : "object-center")}
                           />
                         </div>
                       </div>
