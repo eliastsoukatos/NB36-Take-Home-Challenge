@@ -6,8 +6,8 @@ import urllib.request
 from typing import Any, Dict, Optional
 
 # Default base URL for the Taktile service
-#DEFAULT_BASE = "https://nb-taktile.onrender.com"
-DEFAULT_BASE = "http://localhost:9100"
+DEFAULT_BASE = "https://nb-taktile.onrender.com"
+#DEFAULT_BASE = "http://localhost:9100"
 
 
 def post_json(url: str, payload: Dict[str, Any], timeout: float = 10.0) -> tuple[int, Dict[str, Any] | str]:
