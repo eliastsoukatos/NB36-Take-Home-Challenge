@@ -19,8 +19,8 @@
 
     <main class="mx-auto max-w-7xl px-4 py-8 md:px-6">
       <div class="mx-auto max-w-2xl text-center">
-        <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Diagram</h1>
-        <p class="mt-3 text-slate-600">System flow and integration overview.</p>
+        <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">System Archticture</h1>
+        <p class="mt-3 text-slate-600">Diagram flowchart and integration overview.</p>
       </div>
 
       <div class="mx-auto mt-8 w-full max-w-7xl">
@@ -36,33 +36,16 @@
       </div>
 
       <!-- Explanatory copy under the diagram -->
-      <section class="mx-auto mt-10 w-full max-w-5xl space-y-6 text-slate-700">
-        <h2 class="text-2xl font-semibold text-slate-900">About this diagram</h2>
-        <p>
-          This flowchart outlines the end‑to‑end journey of an application. The UI collects data,
-          triggers orchestration, and receives a real‑time decision with per‑check details for transparency.
-        </p>
-
-        <h3 class="text-lg font-semibold text-slate-900">High‑level steps</h3>
-        <ol class="list-decimal space-y-2 pl-6">
-          <li><span class="font-medium">Submit application:</span> The user completes the form and clicks “Apply Now”.</li>
-          <li><span class="font-medium">Orchestration:</span> A coordinator dispatches parallel checks and aggregates updates.</li>
-          <li><span class="font-medium">Parallel checks:</span> AML, Fraud, Credit, and Income run concurrently and stream results.</li>
-          <li><span class="font-medium">Eligibility decision:</span> Results map to a tier (0–7) and credit limit rules.</li>
-          <li><span class="font-medium">Report + telemetry:</span> The UI shows a summary, request ID, and technical details.</li>
-        </ol>
-
-        <h3 class="text-lg font-semibold text-slate-900">Key components</h3>
-        <ul class="list-disc space-y-2 pl-6">
-          <li><span class="font-medium">SEON (Fraud):</span> Device/behavioral signals, risk indicators (mock).</li>
-          <li><span class="font-medium">Experian (Credit):</span> Bureau tiering and scorecard hints (mock).</li>
-          <li><span class="font-medium">Plain (Income):</span> Payroll/bank mode, coverage months, stability (mock).</li>
-          <li><span class="font-medium">Taktile (Decision):</span> Policy composition into Pass/Review/KO and tier limits (mock).</li>
-        </ul>
-
-        <p class="text-sm text-slate-500">
-          Note: This is a demo representation for product exploration; data, endpoints, and policies are mocked.
-        </p>
+      <section class="mx-auto mt-20 w-full max-w-3xl px-4 md:px-6 lg:px-8 text-slate-900">
+        <h2 class="text-2xl font-bold tracking-tight">How this demo works</h2>
+        <div class="mt-4 space-y-6 text-[17px] sm:text-lg leading-relaxed">
+          <p>This demo shows an end‑to‑end KYC decisioning loop with a thin UI, a stateful backend (NB36), and a policy‑driven orchestration layer (Taktile). The frontend’s only job is to collect the applicant’s information and submit a single POST to the backend. Everything interesting happens behind that request: NB36 turns the submission into a case, calls a Taktile workflow that runs the checks, and then relays a single, human‑readable decision back to the UI.</p>
+          <p>When the user submits the form, NB36 normalizes the inputs into a compact payload: name, DOB, government ID type/number, email and phone, and a postal address (with optional apartment/unit). For the demo, NB36 may also add custom_fields that shape mocked outcomes (such as a forced scenario or income coverage months). NB36 either creates a new case or reopens an existing one, stamps the submission with a case_id and timestamps, and records the raw request for audit. That case_id becomes the thread that ties together the submission, the orchestration request, and the final decision.</p>
+          <p>NB36 then delegates to Taktile by posting the normalized payload to a KYC workflow. You can think of this workflow as a small pipeline: “S” (service) stages fetch signals, while “T” (decision) stages turn those signals into simple outcomes. The S‑stages produce normalized facts such as “<span class="bg-yellow-100 px-1 rounded font-mono text-slate-900">AML: PROCEED</span>”, “<span class="bg-yellow-100 px-1 rounded font-mono text-slate-900">Fraud: FRAUD_PASS with score 17.36</span>”, “<span class="bg-yellow-100 px-1 rounded font-mono text-slate-900">Credit: CREDIT_PASS with bureau tier 7</span>”, or “<span class="bg-yellow-100 px-1 rounded font-mono text-slate-900">Income: INCOME_PASS with coverage 12 and a computed credit_limit</span>”. The T‑stages then evaluate those facts against policy. In this demo the policy is intentionally straightforward: a T‑stage returns <span class="bg-yellow-100 px-1 rounded font-mono text-slate-900">PASS</span> if its corresponding signals meet thresholds, <span class="bg-yellow-100 px-1 rounded font-mono text-slate-900">DECLINE</span> if they clearly violate policy, and <span class="bg-yellow-100 px-1 rounded font-mono text-slate-900">REVIEW</span> when the signals are inconclusive or conflicting. The workflow short‑circuits on <span class="bg-yellow-100 px-1 rounded font-mono text-slate-900">DECLINE</span> or <span class="bg-yellow-100 px-1 rounded font-mono text-slate-900">REVIEW</span> (there’s no need to run later checks if a previous T‑stage has already decisively stopped the journey), but otherwise it proceeds through AML, Fraud, Credit, and Income.</p>
+          <p>Two things matter most for the user‑facing outcome: the category decision and the commercial terms. The category decision is the overall <span class="bg-yellow-100 px-1 rounded font-mono text-slate-900">PASS</span> / <span class="bg-yellow-100 px-1 rounded font-mono text-slate-900">DECLINE</span> / <span class="bg-yellow-100 px-1 rounded font-mono text-slate-900">REVIEW</span> computed by the workflow’s T‑stages. The commercial terms are the <span class="bg-yellow-100 px-1 rounded font-mono text-slate-900">final_tier</span> and the <span class="bg-yellow-100 px-1 rounded font-mono text-slate-900">credit_limit</span> returned with the decision. The tier is a compact way of describing eligibility; in this demo it is derived as a conservative composition of the dimension‑specific tiers (for example, taking the minimum across dimensions), while the credit limit comes from the income decision and reflects the applicant’s affordability under policy. Taktile ships all of that back to NB36 as a single JSON document along with the per‑check decisions so you can see how the conclusion was reached.</p>
+          <p>On receiving that document, NB36 appends it to the case timeline, including the request/response bodies and timing data so an analyst can reconstruct the decision path later. If, for any reason, orchestration is unavailable, NB36 still preserves the case and can return a safe <span class="bg-yellow-100 px-1 rounded font-mono text-slate-900">REVIEW</span> outcome rather than losing the application. The same case_id that NB36 created at submission time is included in the response so the UI, logs, and any analyst tools can refer to the same record. The frontend displays just the essentials: an approval or non‑eligibility headline, the formatted credit limit, the Tier number, and four labeled checks with simple icons. The full JSON is available behind an expandable “Technical details” section for anyone who wants to look under the hood.</p>
+          <p>In short, the division of responsibilities is deliberate. The UI remains simple and interchangeable. NB36 anchors traceability, case management, and resilience. Taktile encapsulates the policy: it ingests normalized signals, evaluates clear criteria in T‑stages, short‑circuits when appropriate, and returns a single outcome with user‑visible terms. This makes the system both explainable—because every step is logged and the final payload tells you why—and adaptable, because the workflow stages and thresholds can evolve without breaking the UI contract or the backend endpoint.</p>
+        </div>
       </section>
     </main>
   </body>

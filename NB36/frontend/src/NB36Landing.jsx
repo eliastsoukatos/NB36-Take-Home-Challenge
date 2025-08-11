@@ -485,118 +485,120 @@ function FAQ() {
       <div className="mt-8 divide-y divide-emerald-100 overflow-hidden rounded-2xl border border-emerald-100 bg-white">
         <details className="group">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 text-left text-sm font-medium text-slate-900 transition hover:bg-emerald-50/70">
-            <span>Tier 7 — $12,000 limit</span>
+            <span>Tier 0 — under $6,400 limit</span>
             <svg className="h-5 w-5 text-emerald-600 transition group-open:rotate-45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
           </summary>
           <div className="px-6 pb-6 text-sm text-slate-600">
             <ul className="list-disc pl-5 space-y-1">
-              <li>AML: PROCEED</li>
-              <li>Fraud: PASS</li>
-              <li>Credit: bureau tier = 7</li>
-              <li>Income: coverage ≥ 12 months</li>
+              <li>AML: Decline if sanctions, PEP, or criminal match found.</li>
+              <li>Fraud: Decline if fraud score ≥ 90 or severe red flags.</li>
+              <li>Credit: Decline if score below 660 or major derogatory events.</li>
+              <li>Income: Under $800/month or insufficient proof.</li>
             </ul>
           </div>
         </details>
 
         <details className="group">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 text-left text-sm font-medium text-slate-900 transition hover:bg-emerald-50/70">
-            <span>Tier 6 — $7,500 limit</span>
+            <span>Tier 1 — $6,400 – $7,992 limit</span>
             <svg className="h-5 w-5 text-emerald-600 transition group-open:rotate-45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
           </summary>
           <div className="px-6 pb-6 text-sm text-slate-600">
             <ul className="list-disc pl-5 space-y-1">
-              <li>AML: PROCEED</li>
-              <li>Fraud: PASS</li>
-              <li>Credit: bureau tier ≥ 6</li>
-              <li>Income: coverage ≥ 6 months</li>
+              <li>AML: Pass.</li>
+              <li>Fraud: Fraud score ≤ 90.</li>
+              <li>Credit: Bureau tier = 1 (low tier, close to decline).</li>
+              <li>Income: $800–$999 monthly.</li>
             </ul>
           </div>
         </details>
 
         <details className="group">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 text-left text-sm font-medium text-slate-900 transition hover:bg-emerald-50/70">
-            <span>Tier 5 — $4,000 limit</span>
+            <span>Tier 2 — $8,000 – $11,192 limit</span>
             <svg className="h-5 w-5 text-emerald-600 transition group-open:rotate-45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
           </summary>
           <div className="px-6 pb-6 text-sm text-slate-600">
             <ul className="list-disc pl-5 space-y-1">
-              <li>AML: PROCEED</li>
-              <li>Fraud: PASS</li>
-              <li>Credit: bureau tier ≥ 6 (or strong 5 with compensating factors)</li>
-              <li>Income: stable with coverage ≥ 6 months</li>
+              <li>AML: Pass.</li>
+              <li>Fraud: Fraud score ≤ 80.</li>
+              <li>Credit: Bureau tier = 2 (borderline, moderate negatives).</li>
+              <li>Income: $1,000–$1,399 monthly.</li>
             </ul>
           </div>
         </details>
 
         <details className="group">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 text-left text-sm font-medium text-slate-900 transition hover:bg-emerald-50/70">
-            <span>Tier 4 — $2,000 limit</span>
+            <span>Tier 3 — $11,200 – $14,392 limit</span>
             <svg className="h-5 w-5 text-emerald-600 transition group-open:rotate-45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
           </summary>
           <div className="px-6 pb-6 text-sm text-slate-600">
             <ul className="list-disc pl-5 space-y-1">
-              <li>AML: PROCEED</li>
-              <li>Fraud: PASS</li>
-              <li>Credit: bureau tier ≥ 4</li>
-              <li>Income: coverage ≥ 3 months</li>
+              <li>AML: Pass.</li>
+              <li>Fraud: Fraud score ≤ 70.</li>
+              <li>Credit: Bureau tier = 3 (fair credit, some issues).</li>
+              <li>Income: $1,400–$1,799 monthly.</li>
             </ul>
           </div>
         </details>
 
         <details className="group">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 text-left text-sm font-medium text-slate-900 transition hover:bg-emerald-50/70">
-            <span>Tier 3 — $1,000 limit</span>
+            <span>Tier 4 — $14,400 – $19,992 limit</span>
             <svg className="h-5 w-5 text-emerald-600 transition group-open:rotate-45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
           </summary>
           <div className="px-6 pb-6 text-sm text-slate-600">
             <ul className="list-disc pl-5 space-y-1">
-              <li>AML: PROCEED</li>
-              <li>Fraud: PASS</li>
-              <li>Credit: bureau tier ≥ 4 (or 3 with review)</li>
-              <li>Income: coverage ≥ 3 months</li>
+              <li>AML: Pass.</li>
+              <li>Fraud: Fraud score ≤ 60.</li>
+              <li>Credit: Bureau tier = 4 (good credit, manageable concerns).</li>
+              <li>Income: $1,800–$2,499 monthly.</li>
             </ul>
           </div>
         </details>
 
         <details className="group">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 text-left text-sm font-medium text-slate-900 transition hover:bg-emerald-50/70">
-            <span>Tier 2 — $500 limit</span>
+            <span>Tier 5 — $20,000 – $27,992 limit</span>
             <svg className="h-5 w-5 text-emerald-600 transition group-open:rotate-45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
           </summary>
           <div className="px-6 pb-6 text-sm text-slate-600">
             <ul className="list-disc pl-5 space-y-1">
-              <li>AML: PROCEED</li>
-              <li>Fraud: PASS or REVIEW</li>
-              <li>Credit: bureau tier ≥ 3</li>
-              <li>Income: coverage ≥ 1–3 months</li>
+              <li>AML: Pass.</li>
+              <li>Fraud: Fraud score ≤ 50.</li>
+              <li>Credit: Bureau tier = 5 (very good credit, few minor issues).</li>
+              <li>Income: $2,500–$3,499 monthly.</li>
             </ul>
           </div>
         </details>
 
         <details className="group">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 text-left text-sm font-medium text-slate-900 transition hover:bg-emerald-50/70">
-            <span>Tier 1 — $300 limit</span>
+            <span>Tier 6 — $28,000 – $39,992 limit</span>
             <svg className="h-5 w-5 text-emerald-600 transition group-open:rotate-45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
           </summary>
           <div className="px-6 pb-6 text-sm text-slate-600">
             <ul className="list-disc pl-5 space-y-1">
-              <li>AML: PROCEED</li>
-              <li>Fraud: PASS or REVIEW</li>
-              <li>Credit: bureau tier ≥ 3 (entry)</li>
-              <li>Income: minimal coverage or payroll source</li>
+              <li>AML: Pass.</li>
+              <li>Fraud: Fraud score ≤ 40, minimal risk signs.</li>
+              <li>Credit: Bureau tier = 6 (excellent credit, small negatives).</li>
+              <li>Income: $3,500–$4,999 monthly.</li>
             </ul>
           </div>
         </details>
 
         <details className="group">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 text-left text-sm font-medium text-slate-900 transition hover:bg-emerald-50/70">
-            <span>Tier 0 — $0 (Declined)</span>
+            <span>Tier 7 — $40,000 + limit</span>
             <svg className="h-5 w-5 text-emerald-600 transition group-open:rotate-45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
           </summary>
           <div className="px-6 pb-6 text-sm text-slate-600">
             <ul className="list-disc pl-5 space-y-1">
-              <li>Any KO in AML, Fraud, Credit, or Income</li>
-              <li>Insufficient data to determine eligibility</li>
+              <li>AML: Must pass with no sanctions, PEP, or criminal matches.</li>
+              <li>Fraud: Fraud score ≤ 30, no severe device/IP red flags.</li>
+              <li>Credit: Bureau tier = 7 (excellent score, very low debt use, long history).</li>
+              <li>Income: $5,000+ monthly (verified, ≥ 3 months coverage or payroll).</li>
             </ul>
           </div>
         </details>

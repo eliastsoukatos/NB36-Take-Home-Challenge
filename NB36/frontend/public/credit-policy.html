@@ -18,61 +18,263 @@
     </header>
 
     <main class="mx-auto max-w-3xl px-4 py-10 md:px-6">
-      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">Credit Policy</h1>
-      <p class="mt-3 text-slate-600">
-        This document outlines the core evaluation criteria used in the NB36 demo to assess applications. The policy is presented for demonstration purposes only and is not a binding agreement or a substitute for legal and compliance review.
-      </p>
+      <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">NB36 Credit Policy</h1>
+      <p class="mt-1 text-base font-semibold text-slate-800">How We Decide Who Gets Our New Credit Card (And How Much Credit They Get)</p>
 
-      <section class="mt-8">
-        <h2 class="text-xl font-semibold text-slate-900">1. AML (Anti‑Money Laundering)</h2>
-        <p class="mt-2 text-slate-700">
-          We perform AML screening to identify potential sanctions, PEP matches, or other compliance red flags. Outcomes are expressed as <span class="font-mono">PROCEED</span>, <span class="font-mono">REVIEW</span>, or <span class="font-mono">KO</span>.
-        </p>
-        <ul class="mt-2 list-disc pl-5 text-slate-700">
-          <li>Watchlist and sanctions checks (mocked)</li>
-          <li>Basic identity verification alignment (mocked)</li>
-        </ul>
-      </section>
+      <div class="mt-6 space-y-6 text-[17px] sm:text-lg leading-relaxed">
+        <section>
+          <h2 class="text-xl font-semibold">Introduction</h2>
+          <p>When you apply for the NB36 credit card, you’re basically asking us to trust you with a certain amount of our money — up to a limit. In return, you promise to pay it back. We take that trust seriously.</p>
+          <p>We want to approve as many good applications as possible, but we also need to protect the bank from fraud and customers from getting in over their heads. That’s why we have a Credit Policy. It’s a step-by-step process that checks four main things before we say “yes” or “no” — and before we decide how much credit to give you.</p>
+        </section>
 
-      <section class="mt-6">
-        <h2 class="text-xl font-semibold text-slate-900">2. Fraud</h2>
-        <p class="mt-2 text-slate-700">
-          We assess device, behavioral, and identity risk to detect potential fraud attempts. Outcomes are expressed as <span class="font-mono">FRAUD_PASS</span>, <span class="font-mono">REVIEW</span>, or <span class="font-mono">KO</span>.
-        </p>
-        <ul class="mt-2 list-disc pl-5 text-slate-700">
-          <li>Device fingerprint and velocity signals (mocked)</li>
-          <li>Behavioral and identity consistency checks (mocked)</li>
-        </ul>
-      </section>
+        <section>
+          <h2 class="text-xl font-semibold">The Four Steps We Check</h2>
+          <p>When your application comes in, it goes through these checks in order:</p>
+          <ol class="list-decimal pl-6 space-y-1">
+            <li><span class="font-medium">AML Check</span> – Are you legally allowed to have an account with us?</li>
+            <li><span class="font-medium">Fraud Check</span> – Does anything about your application look fake or suspicious?</li>
+            <li><span class="font-medium">Credit Check</span> – Have you managed credit well in the past?</li>
+            <li><span class="font-medium">Income Check</span> – Can you comfortably afford to use and pay off the card?</li>
+          </ol>
+          <p class="mt-2">If you fail at any step, we stop the process right there and give a decline decision. If you pass all the way through, we combine your results into a Final Tier that tells us how much of a credit limit you should get.</p>
+        </section>
 
-      <section class="mt-6">
-        <h2 class="text-xl font-semibold text-slate-900">3. Credit</h2>
-        <p class="mt-2 text-slate-700">
-          We incorporate bureau tiering and scorecard‑like indicators to estimate creditworthiness. Outcomes are expressed as <span class="font-mono">CREDIT_PASS</span>, <span class="font-mono">REVIEW</span>, or <span class="font-mono">KO</span>, with a <span class="font-mono">final_tier</span>.
-        </p>
-        <ul class="mt-2 list-disc pl-5 text-slate-700">
-          <li>Tier derivation and minimum thresholds (mocked)</li>
-          <li>Review/KO reasons for transparency (mocked)</li>
-        </ul>
-      </section>
+        <section>
+          <h2 class="text-xl font-semibold">Step 1 – AML (Anti–Money Laundering) Check</h2>
+          <p>Before we even think about giving you credit, we have to follow strict laws to make sure you’re not involved in illegal activities. Here’s what we look for:</p>
+          <ul class="list-disc pl-6 space-y-1">
+            <li>Sanctions lists – These are official lists from governments saying, “You can’t do business with this person or company.”</li>
+            <li>PEPs (Politically Exposed Persons) – Politicians and high-ranking officials who are considered higher risk for corruption or bribery.</li>
+            <li>Criminal lists – Law enforcement databases of known criminals.</li>
+            <li>Adverse media – News stories suggesting involvement in fraud, scams, or money laundering.</li>
+          </ul>
+          <p class="mt-2">If we find your name on a serious list (like sanctions, PEP, or criminal), it’s an automatic decline — no exceptions. This is not our choice, it’s the law.</p>
+          <p>If the only thing we see is bad press (“adverse media”) but nothing legally binding, we keep going, but we make a note in your record for extra caution later. Think of this step like a bouncer at a club checking a “banned” list — if your name’s there, you don’t get in.</p>
+        </section>
 
-      <section class="mt-6">
-        <h2 class="text-xl font-semibold text-slate-900">4. Income</h2>
-        <p class="mt-2 text-slate-700">
-          We verify income via payroll/bank modes and assess coverage and stability. Outcomes are expressed as <span class="font-mono">INCOME_PASS</span>, <span class="font-mono">REVIEW</span>, or <span class="font-mono">KO</span>.
-        </p>
-        <ul class="mt-2 list-disc pl-5 text-slate-700">
-          <li>Coverage months and overage thresholds (mocked)</li>
-          <li>Source used (payroll/bank/document) (mocked)</li>
-        </ul>
-      </section>
+        <section>
+          <h2 class="text-xl font-semibold">Step 2 – Fraud Check</h2>
+          <p>Even if you’re clear legally, we need to know your application is real and not stolen, fake, or set up to trick us. We use a fraud score (0 to 100, where lower is better) plus a list of warning signs. We look for:</p>
+          <ul class="list-disc pl-6 space-y-1">
+            <li>Hiding tools – VPNs, proxies, TOR browsers (all used to hide your real location).</li>
+            <li>Suspicious devices – Phones or computers that act like bots, or emulators pretending to be real devices.</li>
+            <li>Datacenter IPs – Your internet connection comes from a server farm instead of a normal home or mobile network.</li>
+            <li>Missing information – If your device or session data is missing, it’s suspicious.</li>
+          </ul>
+          <p class="mt-2 font-medium">Decisions here:</p>
+          <ul class="list-disc pl-6 space-y-1">
+            <li><span class="font-semibold text-red-700">Decline:</span> Your fraud score is 90 or higher, or you have multiple big red flags (like VPN + fake device + datacenter IP all together).</li>
+            <li><span class="font-semibold text-amber-700">Review:</span> Your fraud score is between 70 and 89, or you have at least one serious warning sign, or we can’t detect your device.</li>
+            <li><span class="font-semibold text-emerald-700">Pass:</span> Your fraud score is under 70, and no big warning signs.</li>
+          </ul>
+          <p class="mt-2">If you pass, we give you a Fraud Tier between 0 (lowest) and 7 (highest), based on your score. This step is like a cashier checking if a $100 bill is fake — we’re not judging you personally, we’re checking if the situation looks off.</p>
+        </section>
 
-      <section class="mt-8">
-        <h2 class="text-xl font-semibold text-slate-900">Final Eligibility</h2>
-        <p class="mt-2 text-slate-700">
-          The policy composes these signals to derive an overall outcome. In this demo, the modal displays a per‑check breakdown with timing and a final request identifier. Technical details provide request/response JSON for reference.
-        </p>
-      </section>
+        <section>
+          <h2 class="text-xl font-semibold">Step 3 – Credit Check</h2>
+          <p>If you’ve passed the first two steps, we now look at your actual financial history. This is where we check:</p>
+          <ol class="list-decimal pl-6 space-y-1">
+            <li>Your credit score (V4 or FICO model) — our baseline.</li>
+            <li>Serious negative events:
+              <ul class="list-disc pl-6 space-y-1">
+                <li>Bankruptcy in the last 7 years</li>
+                <li>Repossession or foreclosure in the last 3 years</li>
+                <li>Charge-offs (debts the lender gave up on) in the last 2 years</li>
+                <li>Collections over $500 in the last year</li>
+              </ul>
+            </li>
+            <li>Debt usage — If you’re using more than 90% of your total credit, that’s a danger sign.</li>
+            <li>Late payments — Especially 90+ days late in the past year.</li>
+            <li>Credit checks — If you’ve had more than 4 hard inquiries in the last 6 months, we worry you might be overextending yourself.</li>
+            <li>Credit history length — Very short histories with very few accounts are riskier.</li>
+            <li>Score floor — If your score is under 660, we stop here with a decline.</li>
+          </ol>
+          <p class="mt-2">If you hit any big red flag above, we immediately decline (Tier 0).</p>
+          <p>If you pass, we adjust your score up or down for things like:</p>
+          <ul class="list-disc pl-6 space-y-1">
+            <li>Low credit usage = good</li>
+            <li>Old accounts = good</li>
+            <li>Variety of account types = good</li>
+            <li>Late payments = bad</li>
+            <li>Too many inquiries = bad</li>
+          </ul>
+          <p class="mt-2">Your final Credit Tier (0–7) comes from this adjusted score. This step is like looking at someone’s driving record before lending them a car — past behavior is a strong clue to future behavior.</p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold">Step 4 – Income Check</h2>
+          <p>The last step is making sure you can afford the credit we want to give you. We check:</p>
+          <ul class="list-disc pl-6 space-y-1">
+            <li>How much you actually take home each month after taxes.</li>
+            <li>Where we got the info — payroll records are best; if we use bank statements, we want at least 3 months of history.</li>
+            <li>Suspicious signs — if your income verification triggers warnings from our system.</li>
+          </ul>
+          <p class="mt-2 font-medium">Declines happen if:</p>
+          <ul class="list-disc pl-6 space-y-1">
+            <li>You have no income.</li>
+            <li>Your income is less than $1,000/month.</li>
+            <li>You have suspicious signals AND income under $1,500/month.</li>
+            <li>Your bank records don’t cover enough time.</li>
+          </ul>
+          <p class="mt-2">If you pass, we give you an Income Tier:</p>
+          <ul class="list-disc pl-6 space-y-1">
+            <li>Tier 7: $5,000+ / month</li>
+            <li>Tier 6: $3,500–$4,999</li>
+            <li>Tier 5: $2,500–$3,499</li>
+            <li>Tier 4: $1,800–$2,499</li>
+            <li>Tier 3: $1,400–$1,799</li>
+            <li>Tier 2: $1,000–$1,399</li>
+            <li>Tier 1: $800–$999</li>
+            <li>Tier 0: < $800</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold">How the Final Tier is Set</h2>
+          <p>If you pass all four steps, we take the lowest tier you got from Fraud, Credit, or Income and make that your Final Tier.</p>
+          <p class="mt-2 font-medium">Example:</p>
+          <ul class="list-disc pl-6">
+            <li>Fraud Tier: 6</li>
+            <li>Credit Tier: 4</li>
+            <li>Income Tier: 5</li>
+            <li class="font-semibold">Final Tier = 4</li>
+          </ul>
+          <p class="mt-2">The Final Tier affects two things:</p>
+          <ol class="list-decimal pl-6 space-y-1">
+            <li>Your approval odds — very low tiers are unlikely to be approved.</li>
+            <li>Your credit limit — we multiply your monthly income by 8 to set the limit.</li>
+          </ol>
+          <p class="mt-2 font-medium">Example:</p>
+          <p>If your monthly income is $2,000 and you pass all checks, your limit is: $2,000 × 8 = $16,000 credit limit.</p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold">Tier Meaning at a Glance</h2>
+          <div class="mt-3 overflow-x-auto rounded-xl border border-slate-200">
+            <table class="w-full text-left text-sm sm:text-base border-separate border-spacing-0">
+              <thead class="bg-slate-50 text-slate-900">
+                <tr>
+                  <th class="sticky top-0 border-b border-slate-200 px-4 py-2 font-semibold">Tier</th>
+                  <th class="sticky top-0 border-b border-slate-200 px-4 py-2 font-semibold">What It Means</th>
+                </tr>
+              </thead>
+              <tbody class="[&_tr:nth-child(even)]:bg-slate-50/50">
+                <tr><td class="border-b border-slate-200 px-4 py-3 font-mono">7</td><td class="border-b border-slate-200 px-4 py-3">Best possible — you have excellent credit, high income, and no fraud risk.</td></tr>
+                <tr><td class="border-b border-slate-200 px-4 py-3 font-mono">6</td><td class="border-b border-slate-200 px-4 py-3">Excellent, but maybe one small negative somewhere.</td></tr>
+                <tr><td class="border-b border-slate-200 px-4 py-3 font-mono">5</td><td class="border-b border-slate-200 px-4 py-3">Very good overall.</td></tr>
+                <tr><td class="border-b border-slate-200 px-4 py-3 font-mono">4</td><td class="border-b border-slate-200 px-4 py-3">Good, but with a few manageable concerns.</td></tr>
+                <tr><td class="border-b border-slate-200 px-4 py-3 font-mono">3</td><td class="border-b border-slate-200 px-4 py-3">Fair — possible to approve but cautious limit.</td></tr>
+                <tr><td class="border-b border-slate-200 px-4 py-3 font-mono">2</td><td class="border-b border-slate-200 px-4 py-3">Borderline risk.</td></tr>
+                <tr><td class="border-b border-slate-200 px-4 py-3 font-mono">1</td><td class="border-b border-slate-200 px-4 py-3">Just above decline level.</td></tr>
+                <tr><td class="border-b border-slate-200 px-4 py-3 font-mono">0</td><td class="border-b border-slate-200 px-4 py-3">Declined — major risk or policy violation.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold">Tier criteria by dimension</h2>
+          <div class="mt-3 overflow-x-auto rounded-xl border border-slate-200">
+            <table class="w-full text-left text-sm sm:text-base border-separate border-spacing-0">
+              <thead class="bg-slate-50 text-slate-900">
+                <tr>
+                  <th class="sticky top-0 border-b border-slate-200 px-4 py-2 font-semibold">Tier</th>
+                  <th class="sticky top-0 border-b border-slate-200 px-4 py-2 font-semibold">AML (Anti–Money Laundering)</th>
+                  <th class="sticky top-0 border-b border-slate-200 px-4 py-2 font-semibold">Fraud</th>
+                  <th class="sticky top-0 border-b border-slate-200 px-4 py-2 font-semibold">Credit</th>
+                  <th class="sticky top-0 border-b border-slate-200 px-4 py-2 font-semibold">Income</th>
+                </tr>
+              </thead>
+              <tbody class="[&_tr:nth-child(even)]:bg-slate-50/50">
+                <tr>
+                  <td class="align-top border-b border-slate-200 px-4 py-3 font-mono">0</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">You’re flagged for big no-nos like being on sanctions lists, a known criminal, or a high-risk political figure.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Very risky: super high fraud score (90+), or you’re using multiple sneaky tools like VPNs + fake devices, or hiding too much info.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Very poor credit: serious red flags like bankruptcy, repossession, charge-offs, high debt use (over 90%), or score under 660.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">No proof of income, or income is less than $800/month.</td>
+                </tr>
+                <tr>
+                  <td class="align-top border-b border-slate-200 px-4 py-3 font-mono">1</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">No major flags, but you might have some minor risk signals.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Fraud score between 81–90 (still risky) or a smaller red flag like missing device info.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Score in the 660–699 range plus some negatives like high utilization (50–80%), past-dues, or too many recent credit checks.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Income between $800–$999/month.</td>
+                </tr>
+                <tr>
+                  <td class="align-top border-b border-slate-200 px-4 py-3 font-mono">2</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Clear checks.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Fraud score 71–80 or a minor red flag.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Score in 660–699 with moderate negatives (some late payments, moderate credit use, or young credit history).</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Income between $1,000–$1,399/month.</td>
+                </tr>
+                <tr>
+                  <td class="align-top border-b border-slate-200 px-4 py-3 font-mono">3</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Clear checks.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Fraud score 61–70, no other issues.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Score in 700–739 or 660–699 with decent history but small negatives.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Income between $1,400–$1,799/month.</td>
+                </tr>
+                <tr>
+                  <td class="align-top border-b border-slate-200 px-4 py-3 font-mono">4</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Clear checks.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Fraud score 51–60.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Score in 740–779 with balanced history or 700–739 with small negatives.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Income between $1,800–$2,499/month.</td>
+                </tr>
+                <tr>
+                  <td class="align-top border-b border-slate-200 px-4 py-3 font-mono">5</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Clear checks.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Fraud score 41–50.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Score in 740–779 with clean history and good mix of accounts.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Income between $2,500–$3,499/month.</td>
+                </tr>
+                <tr>
+                  <td class="align-top border-b border-slate-200 px-4 py-3 font-mono">6</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Clear checks.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Fraud score 31–40.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Score 780+ or 740–779 with extra strong profile (long history, mixed account types).</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Income between $3,500–$4,999/month.</td>
+                </tr>
+                <tr>
+                  <td class="align-top border-b border-slate-200 px-4 py-3 font-mono">7</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Completely clear—no hits.</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Fraud score 0–30 (lowest risk).</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Top credit tier: 780+ with long history, variety of accounts, and very low debt use (<10%).</td>
+                  <td class="align-top border-b border-slate-200 px-4 py-3">Income $5,000+/month.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-semibold">Credit Limits</h2>
+          <p>Credit limits are generally set as 8× your verified monthly income, subject to your Final Tier. A lower Final Tier can cap the limit even if income is higher.</p>
+          <div class="mt-3 overflow-x-auto rounded-xl border border-slate-200">
+            <table class="w-full text-left text-sm sm:text-base border-separate border-spacing-0">
+              <thead class="bg-slate-50 text-slate-900">
+                <tr>
+                  <th class="sticky top-0 border-b border-slate-200 px-4 py-2 font-semibold">Tier</th>
+                  <th class="sticky top-0 border-b border-slate-200 px-4 py-2 font-semibold">Monthly Income Range</th>
+                  <th class="sticky top-0 border-b border-slate-200 px-4 py-2 font-semibold">Credit Limit Range (Income × 8)</th>
+                </tr>
+              </thead>
+              <tbody class="[&_tr:nth-child(even)]:bg-slate-50/50">
+                <tr><td class="border-b border-slate-200 px-4 py-3 font-mono">0</td><td class="border-b border-slate-200 px-4 py-3">Less than $800</td><td class="border-b border-slate-200 px-4 py-3">Less than $6,400</td></tr>
+                <tr><td class="border-b border-slate-200 px-4 py-3 font-mono">1</td><td class="border-b border-slate-200 px-4 py-3">$800 – $999</td><td class="border-b border-slate-200 px-4 py-3">$6,400 – $7,992</td></tr>
+                <tr><td class="border-b border-slate-200 px-4 py-3 font-mono">2</td><td class="border-b border-slate-200 px-4 py-3">$1,000 – $1,399</td><td class="border-b border-slate-200 px-4 py-3">$8,000 – $11,192</td></tr>
+                <tr><td class="border-b border-slate-200 px-4 py-3 font-mono">3</td><td class="border-b border-slate-200 px-4 py-3">$1,400 – $1,799</td><td class="border-b border-slate-200 px-4 py-3">$11,200 – $14,392</td></tr>
+                <tr><td class="border-b border-slate-200 px-4 py-3 font-mono">4</td><td class="border-b border-slate-200 px-4 py-3">$1,800 – $2,499</td><td class="border-b border-slate-200 px-4 py-3">$14,400 – $19,992</td></tr>
+                <tr><td class="border-b border-slate-200 px-4 py-3 font-mono">5</td><td class="border-b border-slate-200 px-4 py-3">$2,500 – $3,499</td><td class="border-b border-slate-200 px-4 py-3">$20,000 – $27,992</td></tr>
+                <tr><td class="border-b border-slate-200 px-4 py-3 font-mono">6</td><td class="border-b border-slate-200 px-4 py-3">$3,500 – $4,999</td><td class="border-b border-slate-200 px-4 py-3">$28,000 – $39,992</td></tr>
+                <tr><td class="border-b border-slate-200 px-4 py-3 font-mono">7</td><td class="border-b border-slate-200 px-4 py-3">$5,000 or more</td><td class="border-b border-slate-200 px-4 py-3">$40,000 or more</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="mt-2 text-sm text-slate-600">This assumes your final tier (after all checks) is the tier we use for your limit — meaning even if your income is higher, a lower final tier caps your limit accordingly.</p>
+        </section>
+      </div>
 
       <footer class="mt-10 border-t border-slate-200 pt-6 text-xs text-slate-500">
         This page is part of the NB36 demo and is intended for demonstration only.

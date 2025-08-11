@@ -21,8 +21,8 @@
  * @property {CheckResult[]} checks
  */
 
-//const ENDPOINT = "http://localhost:9000/apply/kyc";
-const ENDPOINT = "https://nb-backend-fv6v.onrender.com/apply/kyc";
+const ENDPOINT = "http://localhost:9000/apply/kyc";
+//const ENDPOINT = "https://nb-backend-fv6v.onrender.com/apply/kyc";
 
 /**
  * Simple UUID-like generator for demo purposes.
