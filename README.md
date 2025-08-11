@@ -1,4 +1,4 @@
-# NB36 — End‑to‑End Credit Card Demo (Monorepo)
+# Taktile - Take Home Challenge
 
 This project is a self‑contained demo of an application journey, from a public landing page and apply flow to an orchestration/policy layer with mock vendors.
 
